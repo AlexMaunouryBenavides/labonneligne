@@ -8,14 +8,14 @@
 
 ## 2. Design system & layout commun
 
-- [ ] 2.1 Définir les tokens (couleurs noir/blanc, orange-accent + orange-texte AA, typo, espacements)
-- [ ] 2.2 Vérifier le contraste WCAG AA du texte orange (`ux.r11`)
-- [ ] 2.3 Créer le layout commun `<html lang="es-CL">` avec métadonnées SEO par page
-- [ ] 2.4 Header + navigation (Inicio, Planes, Proyectos, Nosotros, Contacto, Blog)
-- [ ] 2.5 Footer avec NAP chilien + liens réseaux sociaux
-- [ ] 2.6 Bouton WhatsApp sticky (mobile) présent sur toutes les pages
-- [ ] 2.7 Intégrer le logo placeholder (singe) dans le header
-- [ ] 2.8 Câbler GSAP (chargement non bloquant) + animation de tracé « la ligne »
+- [x] 2.1 Définir les tokens (couleurs noir/blanc, orange-accent + orange-texte AA, typo, espacements)
+- [x] 2.2 Vérifier le contraste WCAG AA du texte orange (`ux.r11`) — orange-ink 5.18:1 PASS
+- [x] 2.3 Créer le layout commun `<html lang="es-CL">` avec métadonnées SEO par page
+- [x] 2.4 Header + navigation (Inicio, Planes, Proyectos, Nosotros, Contacto, Blog)
+- [x] 2.5 Footer avec NAP chilien + liens réseaux sociaux
+- [x] 2.6 Bouton WhatsApp sticky (mobile) présent sur toutes les pages
+- [x] 2.7 Intégrer le logo (recréé en SVG animable + lockup PNG) dans le header
+- [x] 2.8 Câbler GSAP (chargement non bloquant) + animation de tracé « la ligne »
 
 ## 3. Pages marketing
 

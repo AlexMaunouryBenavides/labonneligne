@@ -1,0 +1,69 @@
+---
+/**
+ * Logo « La Bonne Ligne ».
+ * Monogramme recréé en SVG (deux traits entrelacés = « la ligne ») pour être
+ * net et ANIMABLE : les paths .js-draw sont tracés au chargement par GSAP
+ * (src/scripts/line.ts). Repli sans JS / reduced-motion : logo affiché plein.
+ *
+ * Note ux.r11 : le mot « Bonne » est rendu en --c-orange-ink (orange validé AA),
+ * pas en orange vif, car c'est du texte vivant et non une image.
+ */
+interface Props {
+  /** Affiche le mot-symbole « La Bonne Ligne » à côté du monogramme. */
+  withWordmark?: boolean;
+  /** Hauteur du monogramme (CSS). */
+  size?: string;
+  class?: string;
+}
+const { withWordmark = true, size = '2.25rem', class: className = '' } = Astro.props;
+---
+
+<span class={`logo ${className}`} style={`--mark-size:${size}`}>
+  <svg
+    class="logo__mark"
+    viewBox="0 0 128 128"
+    role="img"
+    aria-label="La Bonne Ligne"
+    fill="none"
+    stroke-width="16"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path class="js-draw" d="M42 34 L42 86 L94 86" stroke="var(--c-ink)" />
+    <path class="js-draw" d="M86 94 L86 42 L34 42" stroke="var(--c-line)" />
+  </svg>
+
+  {
+    withWordmark && (
+      <span class="logo__wordmark" aria-hidden="true">
+        La <span class="logo__accent">Bonne</span> Ligne
+      </span>
+    )
+  }
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    line-height: 1;
+  }
+  .logo__mark {
+    height: var(--mark-size);
+    width: var(--mark-size);
+    flex: none;
+    overflow: visible;
+  }
+  .logo__wordmark {
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: 1.25rem;
+    letter-spacing: -0.01em;
+    color: var(--c-ink);
+    white-space: nowrap;
+  }
+  .logo__accent {
+    color: var(--c-orange-ink);
+  }
+</style>

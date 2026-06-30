@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Blog" description="Ideas y guías sobre diseño web, SEO y presencia online para pymes.">
+  <section class="section container stub">
+    <p class="eyebrow">Blog</p>
+    <h1>Blog</h1>
+    <hr class="rule-line" />
+    <p class="stub__note">Próximamente — el blog llega en una etapa posterior.</p>
+  </section>
+</BaseLayout>
+
+<style>
+  .stub { min-height: 50svh; }
+  .stub h1 { margin-top: var(--space-sm); }
+  .rule-line { margin-block: var(--space-md); }
+  .stub__note { color: var(--c-muted); font-family: var(--font-mono); font-size: var(--fs-sm); }
+</style>

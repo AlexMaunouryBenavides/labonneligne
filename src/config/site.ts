@@ -7,7 +7,8 @@ export const site = {
   // Marque
   name: 'La Bonne Ligne', // nom en français, affiché tel quel
   descriptor: 'diseño web para pymes', // sous-titre es-CL sous le logo
-  tagline: 'Creamos la presencia web que tu empresa merece.', // accroche
+  brandTagline: 'Diseñamos hoy, impulsamos tu futuro.', // tagline du logo (marque)
+  tagline: 'Creamos la presencia web que tu empresa merece.', // accroche (hero)
   slogan: 'La buena línea para tu negocio.', // signature
 
   // Localisation
@@ -31,6 +32,16 @@ export const site = {
     instagram: 'https://instagram.com/',
     tiktok: 'https://tiktok.com/',
   },
+
+  // Navigation principale (libellés es-CL, ordre du menu)
+  nav: [
+    { label: 'Inicio', href: '/' },
+    { label: 'Planes', href: '/planes' },
+    { label: 'Proyectos', href: '/proyectos' },
+    { label: 'Nosotros', href: '/nosotros' },
+    { label: 'Blog', href: '/blog' },
+    { label: 'Contacto', href: '/contacto' },
+  ],
 } as const;
 
 export type Site = typeof site;

@@ -1,0 +1,73 @@
+/**
+ * Design tokens — La Bonne Ligne
+ * Base épurée noir / blanc, orange en accent (cf. docs/agence-web-decisions.md §0).
+ * Deux oranges distincts pour respecter ux.r11 (contraste AA) :
+ *   --c-line  = orange vif, GRAPHIQUE uniquement (traits, surfaces, monogramme)
+ *   --c-orange-ink = orange assombri, VALIDÉ AA pour le texte/liens sur blanc
+ */
+:root {
+  /* — Couleurs — */
+  --c-ink: #111111;        /* texte principal, display */
+  --c-ink-soft: #2b2b2b;
+  --c-muted: #595959;      /* texte secondaire (AA sur blanc) */
+  --c-paper: #ffffff;      /* fond principal */
+  --c-paper-2: #f4f4f2;    /* sections alternées */
+  --c-hairline: #e7e6e2;   /* filets / bordures discrètes */
+  --c-line: #f4621e;       /* ORANGE vif — graphique seulement */
+  --c-line-deep: #d9521a;
+  --c-orange-ink: #c2410c; /* ORANGE texte/liens — AA sur blanc */
+  --c-on-line: #ffffff;    /* texte sur aplat orange vif */
+
+  /* — Typographies — */
+  --font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk Variable', 'Hanken Grotesk', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* — Échelle typographique fluide (modular ~1.25) — */
+  --fs-label: 0.78rem;
+  --fs-sm: 0.9rem;
+  --fs-base: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+  --fs-lg: clamp(1.2rem, 1.1rem + 0.5vw, 1.4rem);
+  --fs-xl: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+  --fs-2xl: clamp(2rem, 1.6rem + 2vw, 3rem);
+  --fs-3xl: clamp(2.6rem, 1.9rem + 3.4vw, 4.5rem);
+  --fs-hero: clamp(3rem, 2rem + 5vw, 6.5rem);
+
+  /* — Graisses / interlettrage — */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --tracking-label: 0.18em;  /* eyebrows / labels mono en capitales */
+  --tracking-tight: -0.02em; /* gros titres display */
+  --leading-tight: 1.04;
+  --leading-snug: 1.2;
+  --leading-body: 1.6;
+
+  /* — Espacements (échelle 4px) — */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2.5rem;
+  --space-xl: 4rem;
+  --space-2xl: 6rem;
+  --space-3xl: 9rem;
+
+  /* — Layout — */
+  --container-max: 76rem;   /* ~1216px */
+  --container-pad: clamp(1.25rem, 5vw, 3rem);
+  --section-y: clamp(4rem, 8vw, 8rem);
+
+  /* — Divers — */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --border-thin: 1px solid var(--c-hairline);
+  --shadow-soft: 0 14px 40px -18px rgba(17, 17, 17, 0.28);
+  --ring: 3px solid var(--c-line);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --header-h: 4.5rem;
+}

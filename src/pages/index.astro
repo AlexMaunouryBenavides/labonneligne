@@ -1,21 +1,100 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
 import { site } from '../config/site';
+
+const waText = encodeURIComponent('Hola, quiero información sobre un sitio web.');
+const waHref = `https://wa.me/${site.contact.whatsapp}?text=${waText}`;
 ---
 
-<!doctype html>
-<html lang={site.lang}>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{site.name} — {site.descriptor}</title>
-    <meta name="description" content={site.tagline} />
-  </head>
-  <body>
-    <!-- Placeholder du palier 1 : le vrai layout/design arrive au palier 2. -->
-    <main>
-      <h1>{site.name}</h1>
-      <p>{site.descriptor}</p>
-      <p>{site.tagline}</p>
-    </main>
-  </body>
-</html>
+<BaseLayout>
+  <!-- HERO — la thèse de la page : « la ligne » qui se trace + l'accroche.
+       Les autres sections de l'accueil (planes, proyectos, por qué, cómo)
+       arrivent au palier 3. -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <div class="hero__copy">
+        <p class="eyebrow">Diseño web · pymes · es-CL</p>
+        <h1 class="hero__title">
+          Creamos la <span class="hero__hl">presencia web</span> que tu empresa merece.
+        </h1>
+        <p class="hero__lead">
+          Sitios rápidos, claros y hechos para que tus clientes te encuentren.
+          Tecnología francesa, presencia 100 % chilena.
+        </p>
+        <div class="hero__actions">
+          <Button href="/planes">Ver planes</Button>
+          <Button href={waHref} variant="ghost">Hablar por WhatsApp</Button>
+        </div>
+        <p class="hero__slogan">{site.slogan}</p>
+      </div>
+
+      <!-- Trait signature : grande "ligne" tracée par GSAP -->
+      <div class="hero__art" aria-hidden="true">
+        <svg viewBox="0 0 200 260" fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+          <path class="js-draw" d="M40 20 L40 200 L180 200" stroke="var(--c-ink)" />
+          <path class="js-draw" d="M170 240 L170 60 L20 60" stroke="var(--c-line)" />
+        </svg>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: clamp(3rem, 8vw, 7rem);
+  }
+  .hero__inner {
+    display: grid;
+    grid-template-columns: 1.4fr 0.8fr;
+    align-items: center;
+    gap: var(--space-xl);
+  }
+  .hero__title {
+    font-size: var(--fs-hero);
+    margin-top: var(--space-sm);
+    max-width: 16ch;
+  }
+  .hero__hl {
+    color: var(--c-orange-ink);
+  }
+  .hero__lead {
+    margin-top: var(--space-md);
+    max-width: 46ch;
+    font-size: var(--fs-lg);
+    color: var(--c-muted);
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+  }
+  .hero__slogan {
+    margin-top: var(--space-lg);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--c-ink);
+  }
+  .hero__art {
+    justify-self: center;
+  }
+  .hero__art svg {
+    width: min(100%, 18rem);
+    height: auto;
+    overflow: visible;
+  }
+
+  @media (max-width: 52rem) {
+    .hero__inner {
+      grid-template-columns: 1fr;
+    }
+    .hero__art {
+      order: -1;
+      justify-self: start;
+    }
+    .hero__art svg {
+      width: 9rem;
+    }
+  }
+</style>
