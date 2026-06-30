@@ -1,0 +1,21 @@
+---
+import { site } from '../config/site';
+---
+
+<!doctype html>
+<html lang={site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{site.name} — {site.descriptor}</title>
+    <meta name="description" content={site.tagline} />
+  </head>
+  <body>
+    <!-- Placeholder du palier 1 : le vrai layout/design arrive au palier 2. -->
+    <main>
+      <h1>{site.name}</h1>
+      <p>{site.descriptor}</p>
+      <p>{site.tagline}</p>
+    </main>
+  </body>
+</html>

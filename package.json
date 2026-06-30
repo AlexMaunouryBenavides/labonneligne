@@ -1,0 +1,19 @@
+{
+  "name": "la-bonne-ligne",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Site vitrine de l'agence La Bonne Ligne (es-CL).",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^7.0.4",
+    "gsap": "^3.15.0",
+    "resend": "^6.16.0"
+  }
+}

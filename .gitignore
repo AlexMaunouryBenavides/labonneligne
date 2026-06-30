@@ -1,0 +1,28 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# dossiers de travail internes (non publiés)
+kit/
+docs/
+content/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environnement / secrets
+.env
+.env.production
+.dev.vars
+
+# editors / os
+.DS_Store
+.vscode/
+.idea/
+Thumbs.db
