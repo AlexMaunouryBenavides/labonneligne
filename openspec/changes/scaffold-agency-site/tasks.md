@@ -19,35 +19,35 @@
 
 ## 3. Pages marketing
 
-- [ ] 3.1 Page `/` : hero (nom + descripteur ES + slogan + CTA), un H1 unique
-- [ ] 3.2 Accueil : sections accroche, aperçu plans, aperçu proyectos, por qué, cómo, CTA final
-- [ ] 3.3 Composant carte d'offre + toggle compra única / arriendo
-- [ ] 3.4 Page `/planes` : 3 niveaux en CLP, inclusions communes, SEA « sobre cotización », FAQ courte (sans rachat 80 %)
-- [ ] 3.5 Composant carte de projet (visuel + description, sans faux témoignage)
-- [ ] 3.6 Page `/proyectos` : réalisations réelles + concepts/templates
-- [ ] 3.7 Page `/nosotros` : positionnement du duo, méthode, garanties
+- [x] 3.1 Page `/` : hero (nom + descripteur ES + slogan + CTA), un H1 unique
+- [x] 3.2 Accueil : sections accroche, aperçu plans, aperçu proyectos, por qué, cómo, CTA final
+- [x] 3.3 Composant carte d'offre + toggle compra única / arriendo (vérifié : $29.000/mes)
+- [x] 3.4 Page `/planes` : 3 niveaux en CLP, inclusions communes, SEA « sobre cotización », FAQ courte (sans rachat 80 %)
+- [x] 3.5 Composant carte de projet (visuel + description, sans faux témoignage)
+- [x] 3.6 Page `/proyectos` : réalisations réelles + concepts/templates
+- [x] 3.7 Page `/nosotros` : positionnement du duo, méthode, garanties
 
 ## 4. Formulaire de contact serverless
 
-- [ ] 4.1 Page `/contacto` : formulaire 3 champs (nombre, contacto, mensaje) + coordonnées + WhatsApp
-- [ ] 4.2 Validation inline + messages d'erreur en clair, situés près du champ (`ux.r8`)
-- [ ] 4.3 États de feedback « Enviando… → Enviado ✓ » + gestion de l'échec (`ux.r6`)
-- [ ] 4.4 Champ honeypot anti-spam
-- [ ] 4.5 Cloudflare Pages Function : envoi via Resend, `RESEND_API_KEY` en variable d'env
-- [ ] 4.6 Vérifier que le secret Resend n'apparaît pas dans le bundle client
+- [x] 4.1 Page `/contacto` : formulaire 3 champs (nombre, contacto, mensaje) + coordonnées + WhatsApp
+- [x] 4.2 Validation inline + messages d'erreur en clair, situés près du champ (`ux.r8`)
+- [x] 4.3 États de feedback « Enviando… → Enviado ✓ » + gestion de l'échec (`ux.r6`)
+- [x] 4.4 Champ honeypot anti-spam
+- [x] 4.5 Cloudflare Pages Function : envoi via Resend, `RESEND_API_KEY` en variable d'env
+- [x] 4.6 Vérifier que le secret Resend n'apparaît pas dans le bundle client
 
 ## 5. Blog (câblé, vide)
 
-- [ ] 5.1 Définir la content collection blog + schéma typé (titre, description, date, catégorie, image?)
-- [ ] 5.2 Page `/blog` : liste triée par date décroissante + état vide explicite
-- [ ] 5.3 Page article individuelle avec métadonnées SEO propres
-- [ ] 5.4 Regroupement / filtrage par catégorie
+- [x] 5.1 Définir la content collection blog + schéma typé (titre, description, date, catégorie, image?)
+- [x] 5.2 Page `/blog` : liste triée par date décroissante + état vide explicite
+- [x] 5.3 Page article individuelle avec métadonnées SEO propres
+- [x] 5.4 Regroupement / filtrage par catégorie
 
 ## 6. SEO, accessibilité & finitions
 
-- [ ] 6.1 Données structurées d'organisation locale (NAP) sur l'accueil
-- [ ] 6.2 Générer le sitemap + titres/meta-descriptions par page
-- [ ] 6.3 Optimiser les images (compression + lazy-load hors écran) (`ux.r10`)
-- [ ] 6.4 Vérifier la navigation clavier complète + focus visible (`ux.r11`)
-- [ ] 6.5 Vérifier le responsive mobile-first (cibles ≥ 44 px, pas de scroll horizontal) (`ux.r9`)
-- [ ] 6.6 Passe finale règles `kit/` (ux, clean-archi-front, seo) + build de validation
+- [x] 6.1 Données structurées d'organisation locale (NAP) sur l'accueil
+- [x] 6.2 Générer le sitemap + titres/meta-descriptions par page
+- [x] 6.3 Optimiser les images (compression + lazy-load hors écran) (`ux.r10`)
+- [x] 6.4 Vérifier la navigation clavier complète + focus visible (`ux.r11`)
+- [x] 6.5 Vérifier le responsive mobile-first (cibles ≥ 44 px, pas de scroll horizontal) (`ux.r9`)
+- [x] 6.6 Passe finale règles `kit/` (ux, clean-archi-front, seo) + build de validation

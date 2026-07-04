@@ -1,9 +1,10 @@
 ---
 import { site } from '../config/site';
 import Logo from './Logo.astro';
+import { whatsappUrl, telHref, mailtoHref } from '../lib/contact';
 
 const year = new Date().getFullYear();
-const waHref = `https://wa.me/${site.contact.whatsapp}`;
+const waHref = whatsappUrl();
 const social = [
   { label: 'Instagram', href: site.social.instagram },
   { label: 'Facebook', href: site.social.facebook },
@@ -11,7 +12,7 @@ const social = [
 ];
 ---
 
-<footer class="site-footer">
+<footer class="site-footer surface-dark">
   <div class="container site-footer__inner">
     <div class="site-footer__brand">
       <Logo size="2rem" />
@@ -20,16 +21,22 @@ const social = [
 
     <nav class="site-footer__nav" aria-label="Navegación del pie">
       <ul role="list">
-        {site.nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        {
+          site.nav.map((item) => (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))
+        }
       </ul>
     </nav>
 
     <!-- NAP — ancrage SEO local, présenté en mono (identité "technique") -->
     <address class="site-footer__nap">
       <span class="eyebrow">Contacto</span>
-      <a href={`tel:${site.contact.phone.replace(/\s/g, '')}`}>{site.contact.phone}</a>
+      <a href={telHref()}>{site.contact.phone}</a>
       <a href={waHref} rel="noopener">WhatsApp</a>
-      <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+      <a href={mailtoHref()}>{site.contact.email}</a>
       <span>{site.contact.city}</span>
     </address>
   </div>
@@ -37,7 +44,15 @@ const social = [
   <div class="container site-footer__bar">
     <p>© {year} {site.name}</p>
     <ul role="list" class="site-footer__social">
-      {social.map((s) => <li><a href={s.href} rel="noopener">{s.label}</a></li>)}
+      {
+        social.map((s) => (
+          <li>
+            <a href={s.href} rel="noopener">
+              {s.label}
+            </a>
+          </li>
+        ))
+      }
     </ul>
   </div>
 </footer>
@@ -45,7 +60,6 @@ const social = [
 <style>
   .site-footer {
     border-top: 3px solid var(--c-line); /* la "ligne" en bord supérieur */
-    background: var(--c-paper-2);
     margin-top: var(--space-2xl);
   }
   .site-footer__inner {

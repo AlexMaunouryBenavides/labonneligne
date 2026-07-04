@@ -6,9 +6,10 @@ dist/
 node_modules/
 
 # dossiers de travail internes (non publiés)
+# NB: ancré à la racine (/) pour ne PAS masquer la collection Astro src/content/.
 kit/
 docs/
-content/
+/content/
 
 # logs
 npm-debug.log*
@@ -18,7 +19,8 @@ pnpm-debug.log*
 
 # environnement / secrets
 .env
-.env.production
+.env.*
+!.env.example
 .dev.vars
 
 # editors / os

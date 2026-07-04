@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import PostList from '../../../components/PostList.astro';
+import { getPublishedPosts, collectCategories, slugify } from '../../../lib/blog';
+
+// Une page par catégorie existante ; le filtrage est fait au build (site statique).
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return collectCategories(posts).map((cat) => ({
+    params: { categoria: cat.slug },
+    props: {
+      category: cat.name,
+      posts: posts.filter((post) => slugify(post.data.category) === cat.slug),
+    },
+  }));
+}
+
+const { category, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`Blog · ${category}`}
+  description={`Artículos sobre ${category}: guías de diseño web y SEO para pymes.`}
+>
+  <section class="section container">
+    <SectionHeading
+      as="h1"
+      eyebrow="Categoría"
+      title={category}
+      intro={`Todos nuestros artículos en la categoría ${category}.`}
+    />
+    <PostList posts={posts} />
+    <p class="back"><a href="/blog">← Todas las categorías</a></p>
+  </section>
+</BaseLayout>
+
+<style>
+  .back {
+    margin-top: var(--space-xl);
+  }
+</style>

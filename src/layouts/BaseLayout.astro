@@ -1,8 +1,9 @@
 ---
-import '@fontsource-variable/bricolage-grotesque';
-import '@fontsource-variable/hanken-grotesk';
-import '@fontsource/space-mono/400.css';
-import '@fontsource/space-mono/700.css';
+// Display : Anton = doublure de Manuka (grasse condensée) en attendant la
+// licence complète de Manuka (le fichier d'essai n'a pas les accents es-CL).
+import '@fontsource/anton';
+import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
 import '../styles/tokens.css';
 import '../styles/global.css';
 
@@ -20,12 +21,7 @@ interface Props {
   noindex?: boolean;
 }
 
-const {
-  title,
-  description = site.tagline,
-  image,
-  noindex = false,
-} = Astro.props;
+const { title, description = site.tagline, image, noindex = false } = Astro.props;
 
 const pageTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.descriptor}`;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;

@@ -1,0 +1,94 @@
+---
+import { plans } from '../data/plans';
+import OfferCard from './OfferCard.astro';
+
+interface Props {
+  showToggle?: boolean;
+}
+const { showToggle = true } = Astro.props;
+---
+
+<div class="plans">
+  {
+    showToggle && (
+      <div class="plans__toggle" role="group" aria-label="Modo de pago">
+        <button type="button" class="plans__opt is-active" data-mode-btn="once" aria-pressed="true">
+          Compra única
+        </button>
+        <button type="button" class="plans__opt" data-mode-btn="month" aria-pressed="false">
+          Arriendo / mes
+        </button>
+      </div>
+    )
+  }
+
+  <div class="plans__grid" data-mode="once">
+    {plans.map((plan) => <OfferCard plan={plan} />)}
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.plans').forEach((root) => {
+    const grid = root.querySelector<HTMLElement>('.plans__grid');
+    const buttons = root.querySelectorAll<HTMLButtonElement>('[data-mode-btn]');
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const mode = button.dataset.modeBtn ?? 'once';
+        grid?.setAttribute('data-mode', mode);
+        buttons.forEach((other) => {
+          const active = other === button;
+          other.classList.toggle('is-active', active);
+          other.setAttribute('aria-pressed', String(active));
+        });
+      });
+    });
+  });
+</script>
+
+<!-- Bascule des prix selon le mode : règle globale (franchit le scoping). -->
+<style is:global>
+  .plans__grid[data-mode='once'] [data-price='month'],
+  .plans__grid[data-mode='month'] [data-price='once'] {
+    display: none;
+  }
+</style>
+
+<style>
+  .plans__toggle {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    margin-bottom: var(--space-lg);
+    background: var(--c-paper-2);
+    border-radius: var(--radius-pill);
+  }
+  .plans__opt {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--c-muted);
+    transition:
+      background 0.2s var(--ease-out),
+      color 0.2s var(--ease-out);
+  }
+  .plans__opt.is-active {
+    background: var(--c-ink);
+    color: var(--c-paper);
+  }
+  .plans__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+    align-items: start;
+  }
+  @media (max-width: 60rem) {
+    .plans__grid {
+      grid-template-columns: 1fr;
+      max-width: 28rem;
+    }
+  }
+</style>

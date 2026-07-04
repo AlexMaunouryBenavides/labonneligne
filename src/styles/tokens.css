@@ -7,21 +7,28 @@
  */
 :root {
   /* — Couleurs — */
-  --c-ink: #111111;        /* texte principal, display */
+  --c-ink: #111111; /* texte principal, display */
   --c-ink-soft: #2b2b2b;
-  --c-muted: #595959;      /* texte secondaire (AA sur blanc) */
-  --c-paper: #ffffff;      /* fond principal */
-  --c-paper-2: #f4f4f2;    /* sections alternées */
-  --c-hairline: #e7e6e2;   /* filets / bordures discrètes */
-  --c-line: #f4621e;       /* ORANGE vif — graphique seulement */
+  --c-muted: #595959; /* texte secondaire (AA sur blanc) */
+  --c-paper: #ffffff; /* fond principal */
+  --c-paper-2: #f4f4f2; /* sous-surfaces neutres (contrôles, placeholders) */
+  --c-accent: #f4621e; /* surface accent orange — fond des sections « alt » */
+  --c-dark: #161616; /* surface sombre — footer, carte contact */
+  --c-hairline: #e7e6e2; /* filets / bordures discrètes */
+  --c-line: #f4621e; /* ORANGE vif — graphique seulement */
   --c-line-deep: #d9521a;
-  --c-orange-ink: #c2410c; /* ORANGE texte/liens — AA sur blanc */
-  --c-on-line: #ffffff;    /* texte sur aplat orange vif */
+  /* ORANGE texte/liens — vif et assumé (contrainte AA levée sur choix produit) */
+  --c-orange-ink: #f4621e;
+  --c-on-line: #ffffff; /* texte sur aplat orange vif */
+  --c-danger: #b3261e; /* erreurs de formulaire — AA sur blanc, distinct de l'orange */
+  --c-ok: #1a7f47; /* confirmation d'envoi — AA sur blanc */
 
   /* — Typographies — */
-  --font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', system-ui, sans-serif;
-  --font-body: 'Hanken Grotesk Variable', 'Hanken Grotesk', system-ui, sans-serif;
-  --font-mono: 'Space Mono', ui-monospace, 'SFMono-Regular', monospace;
+  /* Titres + corps : Geist. Anton (doublure Manuka) réservé au hero. Mono : Geist Mono. */
+  --font-display: 'Geist Variable', 'Geist', system-ui, sans-serif;
+  --font-hero: 'Anton', 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body: 'Geist Variable', 'Geist', system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, monospace;
 
   /* — Échelle typographique fluide (modular ~1.25) — */
   --fs-label: 0.78rem;
@@ -38,7 +45,7 @@
   --fw-medium: 500;
   --fw-semibold: 600;
   --fw-bold: 700;
-  --tracking-label: 0.18em;  /* eyebrows / labels mono en capitales */
+  --tracking-label: 0.18em; /* eyebrows / labels mono en capitales */
   --tracking-tight: -0.02em; /* gros titres display */
   --leading-tight: 1.04;
   --leading-snug: 1.2;
@@ -56,7 +63,7 @@
   --space-3xl: 9rem;
 
   /* — Layout — */
-  --container-max: 76rem;   /* ~1216px */
+  --container-max: 76rem; /* ~1216px */
   --container-pad: clamp(1.25rem, 5vw, 3rem);
   --section-y: clamp(4rem, 8vw, 8rem);
 

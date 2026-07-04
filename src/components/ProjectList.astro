@@ -1,0 +1,25 @@
+---
+/**
+ * Liste de projets en rangées, dans un conteneur resserré pour de larges
+ * gouttières latérales (inspiration bykins.com). Réutilisée sur l'accueil
+ * (aperçu) et sur /proyectos (liste complète).
+ */
+import type { Project } from '../data/projects';
+import ProjectRow from './ProjectRow.astro';
+
+interface Props {
+  projects: Project[];
+}
+const { projects } = Astro.props;
+---
+
+<div class="projects-flow">
+  {projects.map((project) => <ProjectRow project={project} />)}
+</div>
+
+<style>
+  .projects-flow {
+    max-width: 58rem;
+    margin-inline: auto;
+  }
+</style>

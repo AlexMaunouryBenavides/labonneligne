@@ -1,12 +1,9 @@
 ---
 /**
  * Logo « La Bonne Ligne ».
- * Monogramme recréé en SVG (deux traits entrelacés = « la ligne ») pour être
- * net et ANIMABLE : les paths .js-draw sont tracés au chargement par GSAP
- * (src/scripts/line.ts). Repli sans JS / reduced-motion : logo affiché plein.
- *
- * Note ux.r11 : le mot « Bonne » est rendu en --c-orange-ink (orange validé AA),
- * pas en orange vif, car c'est du texte vivant et non une image.
+ * Motif : une coche qui s'élève — « la bonne » (le bon choix ✓) + « ligne » qui
+ * monte (« impulsamos tu futuro »). Deux traits .js-draw tracés au chargement
+ * par GSAP (src/scripts/line.ts). Repli sans JS / reduced-motion : logo plein.
  */
 interface Props {
   /** Affiche le mot-symbole « La Bonne Ligne » à côté du monogramme. */
@@ -29,8 +26,8 @@ const { withWordmark = true, size = '2.25rem', class: className = '' } = Astro.p
     stroke-linecap="round"
     stroke-linejoin="round"
   >
-    <path class="js-draw" d="M42 34 L42 86 L94 86" stroke="var(--c-ink)" />
-    <path class="js-draw" d="M86 94 L86 42 L34 42" stroke="var(--c-line)" />
+    <path class="js-draw" d="M26 60 L52 90" stroke="var(--c-ink)"></path>
+    <path class="js-draw" d="M52 90 L104 24" stroke="var(--c-line)"></path>
   </svg>
 
   {

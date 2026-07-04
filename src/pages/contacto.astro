@@ -1,19 +1,345 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import { HONEYPOT_FIELD } from '../lib/contact-form';
+import { whatsappUrl, telHref, mailtoHref } from '../lib/contact';
+import { site } from '../config/site';
+
+const waHref = whatsappUrl();
 ---
 
-<BaseLayout title="Contacto" description="Conversemos sobre tu sitio web. Escríbenos por WhatsApp o por el formulario.">
-  <section class="section container stub">
-    <p class="eyebrow">Contacto</p>
-    <h1>Conversemos</h1>
-    <hr class="rule-line" />
-    <p class="stub__note">Próximamente — el formulario llega en la siguiente etapa.</p>
+<BaseLayout
+  title="Contacto"
+  description="Conversemos sobre tu sitio web. Escríbenos por el formulario o por WhatsApp y te respondemos rápido."
+>
+  <section class="section container contacto">
+    <SectionHeading
+      as="h1"
+      eyebrow="Contacto"
+      title="Conversemos sobre tu sitio"
+      intro="Cuéntanos qué necesitas y te respondemos rápido, sin compromiso."
+    />
+
+    <div class="contacto__grid">
+      <!-- Formulaire — 3 champs, validation inline, feedback d'envoi -->
+      <form id="contact-form" class="cform" novalidate>
+        <div class="field">
+          <label class="field__label" for="nombre">Nombre</label>
+          <input
+            class="field__input"
+            id="nombre"
+            name="nombre"
+            type="text"
+            autocomplete="name"
+            required
+            aria-describedby="err-nombre"
+          />
+          <p class="field__error" id="err-nombre" aria-live="polite"></p>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="contacto">Email o teléfono</label>
+          <input
+            class="field__input"
+            id="contacto"
+            name="contacto"
+            type="text"
+            inputmode="email"
+            autocomplete="email"
+            required
+            aria-describedby="err-contacto"
+          />
+          <p class="field__error" id="err-contacto" aria-live="polite"></p>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="mensaje">Mensaje</label>
+          <textarea
+            class="field__input field__input--area"
+            id="mensaje"
+            name="mensaje"
+            rows="5"
+            required
+            aria-describedby="err-mensaje"></textarea>
+          <p class="field__error" id="err-mensaje" aria-live="polite"></p>
+        </div>
+
+        <!-- Honeypot anti-spam : hors écran, invisible et ignoré au clavier -->
+        <div class="hp" aria-hidden="true">
+          <label for={HONEYPOT_FIELD}>No rellenes este campo</label>
+          <input id={HONEYPOT_FIELD} name={HONEYPOT_FIELD} type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <button class="cform__submit" type="submit">Enviar mensaje</button>
+        <p class="cform__status" role="status" aria-live="polite"></p>
+      </form>
+
+      <!-- Contact direct -->
+      <aside class="direct surface-dark">
+        <h2 class="direct__title">O directo</h2>
+        <p class="direct__text">¿Prefieres hablar de inmediato? Escríbenos por WhatsApp.</p>
+        <a class="direct__wa" href={waHref} target="_blank" rel="noopener">WhatsApp</a>
+        <ul role="list" class="direct__list">
+          <li>
+            <span class="direct__label">Teléfono</span>
+            <a href={telHref()}>{site.contact.phone}</a>
+          </li>
+          <li>
+            <span class="direct__label">Email</span>
+            <a href={mailtoHref()}>{site.contact.email}</a>
+          </li>
+          <li>
+            <span class="direct__label">Ubicación</span>
+            <span>{site.contact.city}</span>
+          </li>
+        </ul>
+      </aside>
+    </div>
   </section>
 </BaseLayout>
 
+<script>
+  import { CONTACT_FIELDS, validateField, type ContactField } from '../lib/contact-form';
+
+  const form = document.querySelector<HTMLFormElement>('#contact-form');
+  if (form) {
+    const submit = form.querySelector<HTMLButtonElement>('.cform__submit')!;
+    const status = form.querySelector<HTMLParagraphElement>('.cform__status')!;
+    const submitLabel = submit.textContent ?? 'Enviar mensaje';
+
+    const inputFor = (field: ContactField) =>
+      form.elements.namedItem(field) as HTMLInputElement | HTMLTextAreaElement | null;
+    const errorFor = (field: ContactField) =>
+      document.getElementById(`err-${field}`) as HTMLParagraphElement | null;
+
+    function showError(field: ContactField, message: string | null) {
+      const input = inputFor(field);
+      const slot = errorFor(field);
+      if (!input || !slot) return;
+      slot.textContent = message ?? '';
+      input.setAttribute('aria-invalid', message ? 'true' : 'false');
+      input.classList.toggle('field__input--error', Boolean(message));
+    }
+
+    function setStatus(message: string, tone: 'ok' | 'error' | '') {
+      status.textContent = message;
+      status.dataset.tone = tone;
+    }
+
+    function resetSubmit() {
+      submit.disabled = false;
+      submit.textContent = submitLabel;
+    }
+
+    // Valide tous les champs, affiche les erreurs, renvoie le premier fautif.
+    function validateAll(): ContactField | null {
+      let firstInvalid: ContactField | null = null;
+      for (const field of CONTACT_FIELDS) {
+        const message = validateField(field, inputFor(field)?.value ?? '');
+        showError(field, message);
+        if (message && !firstInvalid) firstInvalid = field;
+      }
+      return firstInvalid;
+    }
+
+    async function send(): Promise<void> {
+      const response = await fetch('/api/contact', { method: 'POST', body: new FormData(form!) });
+      const data = (await response.json().catch(() => ({}))) as {
+        ok?: boolean;
+        errors?: Partial<Record<ContactField, string>>;
+      };
+
+      if (response.ok && data.ok) {
+        submit.textContent = 'Enviado ✓';
+        setStatus('¡Gracias! Te responderemos pronto.', 'ok');
+        form!.reset();
+        return;
+      }
+
+      // Erreurs de validation renvoyées par le serveur : afficher par champ,
+      // conserver la saisie et inviter à réessayer (ux.r6).
+      if (data.errors) {
+        for (const field of CONTACT_FIELDS) showError(field, data.errors[field] ?? null);
+      }
+      setStatus('No pudimos enviar el mensaje. Revisa e intenta de nuevo.', 'error');
+      resetSubmit();
+    }
+
+    // Validation à la sortie de champ (feedback inline, près du champ — ux.r8)
+    for (const field of CONTACT_FIELDS) {
+      inputFor(field)?.addEventListener('blur', () => {
+        showError(field, validateField(field, inputFor(field)?.value ?? ''));
+      });
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const firstInvalid = validateAll();
+      if (firstInvalid) {
+        inputFor(firstInvalid)?.focus();
+        setStatus('Revisa los campos marcados.', 'error');
+        return;
+      }
+
+      submit.disabled = true;
+      submit.textContent = 'Enviando…';
+      setStatus('', '');
+
+      try {
+        await send();
+      } catch {
+        setStatus('Hubo un problema de conexión. Intenta de nuevo.', 'error');
+        resetSubmit();
+      }
+    });
+  }
+</script>
+
 <style>
-  .stub { min-height: 50svh; }
-  .stub h1 { margin-top: var(--space-sm); }
-  .rule-line { margin-block: var(--space-md); }
-  .stub__note { color: var(--c-muted); font-family: var(--font-mono); font-size: var(--fs-sm); }
+  .contacto__grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: var(--space-xl);
+    align-items: start;
+  }
+
+  /* — Formulaire — */
+  .cform {
+    display: grid;
+    gap: var(--space-md);
+  }
+  .field {
+    display: grid;
+    gap: var(--space-3xs);
+  }
+  .field__label {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+  }
+  .field__input {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border: var(--border-thin);
+    border-radius: var(--radius-sm);
+    background: var(--c-paper);
+    transition:
+      border-color 0.18s var(--ease-out),
+      box-shadow 0.18s var(--ease-out);
+  }
+  .field__input:focus-visible {
+    outline: none;
+    border-color: var(--c-line);
+    box-shadow: 0 0 0 3px rgba(244, 98, 30, 0.18);
+  }
+  .field__input--area {
+    resize: vertical;
+    min-height: 7rem;
+  }
+  .field__input--error {
+    border-color: var(--c-danger);
+  }
+  .field__error {
+    min-height: 1.1em;
+    font-size: var(--fs-sm);
+    color: var(--c-danger);
+  }
+  .field__error:empty {
+    min-height: 0;
+  }
+
+  .cform__submit {
+    justify-self: start;
+    min-height: 2.9rem;
+    padding: 0.7rem 1.6rem;
+    border: 2px solid transparent;
+    border-radius: var(--radius-pill);
+    background: var(--c-ink);
+    color: var(--c-paper);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    cursor: pointer;
+    transition:
+      transform 0.18s var(--ease-out),
+      background 0.18s var(--ease-out);
+  }
+  .cform__submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    background: var(--c-orange-ink);
+  }
+  .cform__submit:disabled {
+    opacity: 0.7;
+    cursor: progress;
+  }
+  .cform__status {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+  }
+  .cform__status[data-tone='ok'] {
+    color: var(--c-ok);
+  }
+  .cform__status[data-tone='error'] {
+    color: var(--c-danger);
+  }
+
+  /* Honeypot : retiré du flux et de la navigation, invisible pour l'humain */
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  /* — Contact direct — */
+  .direct {
+    padding: var(--space-lg);
+    border-radius: var(--radius-md);
+  }
+  .direct__title {
+    font-size: var(--fs-xl);
+  }
+  .direct__text {
+    color: var(--c-muted);
+    font-size: var(--fs-sm);
+    margin-top: var(--space-3xs);
+  }
+  .direct__wa {
+    display: inline-flex;
+    align-items: center;
+    margin-top: var(--space-md);
+    padding: 0.6rem 1.4rem;
+    border-radius: var(--radius-pill);
+    background: var(--c-line);
+    color: var(--c-on-line);
+    font-weight: var(--fw-semibold);
+    font-size: var(--fs-sm);
+    text-decoration: none;
+  }
+  .direct__wa:hover {
+    background: var(--c-line-deep);
+  }
+  .direct__list {
+    display: grid;
+    gap: var(--space-sm);
+    margin: var(--space-lg) 0 0;
+  }
+  .direct__list li {
+    display: grid;
+    gap: var(--space-3xs);
+  }
+  .direct__label {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+
+  @media (max-width: 48rem) {
+    .contacto__grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-lg);
+    }
+  }
 </style>

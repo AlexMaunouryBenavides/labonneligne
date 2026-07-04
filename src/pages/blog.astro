@@ -1,19 +1,91 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import PostList from '../components/PostList.astro';
+import { getPublishedPosts, collectCategories } from '../lib/blog';
+
+const posts = await getPublishedPosts();
+const categories = collectCategories(posts);
 ---
 
-<BaseLayout title="Blog" description="Ideas y guías sobre diseño web, SEO y presencia online para pymes.">
-  <section class="section container stub">
-    <p class="eyebrow">Blog</p>
-    <h1>Blog</h1>
-    <hr class="rule-line" />
-    <p class="stub__note">Próximamente — el blog llega en una etapa posterior.</p>
+<BaseLayout
+  title="Blog"
+  description="Guías claras sobre diseño web, SEO y presencia online para pymes en Chile."
+>
+  <section class="section container">
+    <SectionHeading
+      as="h1"
+      eyebrow="Blog"
+      title="Ideas para tu presencia online"
+      intro="Guías claras sobre diseño web, SEO y cómo aparecer en Google en Chile."
+    />
+
+    {
+      categories.length > 0 && (
+        <nav class="cats" aria-label="Categorías">
+          {categories.map((c) => (
+            <a class="cats__link" href={`/blog/categoria/${c.slug}`}>
+              {c.name} <span class="cats__count">{c.count}</span>
+            </a>
+          ))}
+        </nav>
+      )
+    }
+
+    {
+      posts.length > 0 ? (
+        <PostList posts={posts} />
+      ) : (
+        <div class="empty">
+          <hr class="rule-line" />
+          <p class="empty__lead">Aún no publicamos artículos.</p>
+          <p class="empty__text">
+            Estamos preparando guías útiles sobre diseño web y SEO para pymes. Vuelve pronto — o
+            escríbenos si tienes dudas, respondemos rápido.
+          </p>
+        </div>
+      )
+    }
   </section>
 </BaseLayout>
 
 <style>
-  .stub { min-height: 50svh; }
-  .stub h1 { margin-top: var(--space-sm); }
-  .rule-line { margin-block: var(--space-md); }
-  .stub__note { color: var(--c-muted); font-family: var(--font-mono); font-size: var(--fs-sm); }
+  .cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin-bottom: var(--space-lg);
+  }
+  .cats__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    border: var(--border-thin);
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-sm);
+    text-decoration: none;
+    transition: border-color 0.18s var(--ease-out);
+  }
+  .cats__link:hover {
+    border-color: var(--c-line);
+  }
+  .cats__count {
+    color: var(--c-muted);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+  }
+  .empty {
+    max-width: 46rem;
+  }
+  .empty__lead {
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
+    font-weight: var(--fw-semibold);
+    margin-block: var(--space-md) var(--space-xs);
+  }
+  .empty__text {
+    color: var(--c-muted);
+    max-width: 56ch;
+  }
 </style>

@@ -1,0 +1,51 @@
+---
+import Button from './Button.astro';
+import { whatsappUrl } from '../lib/contact';
+
+interface Props {
+  title?: string;
+  text?: string;
+}
+const { title = '¿Conversamos sobre tu sitio?', text = 'Respondemos rápido y sin compromiso.' } =
+  Astro.props;
+const waHref = whatsappUrl();
+---
+
+<section class="cta-band surface-accent">
+  <div class="container cta-band__inner">
+    <div class="cta-band__copy">
+      <h2 class="cta-band__title">{title}</h2>
+      <p class="cta-band__text">{text}</p>
+    </div>
+    <div class="cta-band__actions">
+      <Button href="/contacto">Contactar</Button>
+      <Button href={waHref} variant="ghost">WhatsApp</Button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-band {
+    border-top: 3px solid var(--c-line);
+  }
+  .cta-band__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding-block: var(--space-xl);
+  }
+  .cta-band__title {
+    font-size: var(--fs-2xl);
+  }
+  .cta-band__text {
+    color: var(--c-muted);
+    margin-top: var(--space-3xs);
+  }
+  .cta-band__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+</style>

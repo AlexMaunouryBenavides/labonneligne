@@ -51,11 +51,19 @@ h4 {
   text-wrap: balance;
 }
 
-h1 { font-size: var(--fs-3xl); }
-h2 { font-size: var(--fs-2xl); }
-h3 { font-size: var(--fs-xl); }
+h1 {
+  font-size: var(--fs-3xl);
+}
+h2 {
+  font-size: var(--fs-2xl);
+}
+h3 {
+  font-size: var(--fs-xl);
+}
 
-p { text-wrap: pretty; }
+p {
+  text-wrap: pretty;
+}
 
 a {
   color: inherit;
@@ -93,8 +101,29 @@ ol[role='list'] {
   padding-block: var(--section-y);
 }
 
-.section--alt {
-  background: var(--c-paper-2);
+/* — Surface accent orange —
+   Fond orange vif ; on remappe localement les tokens « orange » vers l'encre
+   pour que eyebrows, liens, traits « ligne » et bordures restent visibles.
+   Les propriétés custom se propagent aux composants enfants (franchit le scoping). */
+.section--alt,
+.surface-accent {
+  background: var(--c-accent);
+  color: var(--c-ink);
+  --c-orange-ink: var(--c-ink); /* eyebrows / liens → encre sur orange */
+  --c-line: var(--c-ink); /* traits « ligne » → encre sur orange */
+  --c-muted: rgba(17, 17, 17, 0.74); /* texte secondaire lisible sur orange */
+  --c-hairline: rgba(17, 17, 17, 0.22); /* filets discrets sur orange */
+}
+
+/* — Surface sombre —
+   Fond quasi-noir ; texte en blanc, les accents orange RESTENT orange
+   (excellent contraste sur fond sombre). */
+.surface-dark {
+  background: var(--c-dark);
+  color: var(--c-paper);
+  --c-ink: #ffffff; /* texte principal → blanc */
+  --c-muted: rgba(255, 255, 255, 0.66); /* texte secondaire sur sombre */
+  --c-hairline: rgba(255, 255, 255, 0.16); /* filets discrets sur sombre */
 }
 
 /* Eyebrow / label mono en capitales — porte l'identité "technique/dev" */

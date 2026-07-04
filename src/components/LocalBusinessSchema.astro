@@ -1,0 +1,31 @@
+---
+/**
+ * Données structurées d'organisation locale (JSON-LD) pour le SEO local sur
+ * Google.cl (site-foundation : « Données structurées d'organisation »). Le NAP
+ * provient de la source unique `site` (clean-code.r13) — à injecter via le slot
+ * `head`, une seule fois, sur l'accueil.
+ */
+import { site } from '../config/site';
+
+const canonicalBase = new URL('/', Astro.site).href;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: site.name,
+  description: site.tagline,
+  url: canonicalBase,
+  telephone: site.contact.phone,
+  email: site.contact.email,
+  areaServed: 'CL',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: site.contact.city,
+    addressRegion: site.contact.region,
+    addressCountry: 'CL',
+  },
+  sameAs: [site.social.instagram, site.social.facebook, site.social.tiktok],
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} is:inline />

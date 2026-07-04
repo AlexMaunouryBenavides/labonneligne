@@ -1,0 +1,9 @@
+# En-têtes de sécurité — Cloudflare Pages (security.r2)
+# CSP volontairement différée (à cadrer avec les styles/scripts inline d'Astro
+# + Fontsource) pour ne pas casser le rendu ; à ajouter dans un palier dédié.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload

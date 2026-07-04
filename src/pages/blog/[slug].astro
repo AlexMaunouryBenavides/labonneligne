@@ -1,0 +1,103 @@
+---
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPublishedPosts, slugify } from '../../lib/blog';
+import { formatDate } from '../../lib/format';
+
+// Une page par article publié ; collection vide ⇒ aucune page (blog câblé mais vide).
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  image={post.data.image?.src}
+>
+  <article class="section container article">
+    <p class="eyebrow">
+      <a href={`/blog/categoria/${slugify(post.data.category)}`}>{post.data.category}</a>
+    </p>
+    <h1 class="article__title">{post.data.title}</h1>
+    <p class="article__meta">
+      <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+    </p>
+    <hr class="rule-line" />
+    {
+      post.data.image && (
+        <Image
+          class="article__cover"
+          src={post.data.image}
+          alt={post.data.title}
+          loading="eager"
+          widths={[480, 800, 1200]}
+          sizes="(max-width: 46rem) 100vw, 46rem"
+        />
+      )
+    }
+    <div class="prose">
+      <Content />
+    </div>
+    <p class="article__back"><a href="/blog">← Volver al blog</a></p>
+  </article>
+</BaseLayout>
+
+<style>
+  .article {
+    max-width: 46rem;
+  }
+  .eyebrow a {
+    text-decoration: none;
+  }
+  .article__title {
+    margin-top: var(--space-xs);
+  }
+  .article__meta {
+    color: var(--c-muted);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    margin-top: var(--space-sm);
+  }
+  .rule-line {
+    margin-block: var(--space-lg);
+  }
+  .article__cover {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-lg);
+  }
+  .prose :global(h2) {
+    font-size: var(--fs-xl);
+    margin-top: var(--space-lg);
+  }
+  .prose :global(h3) {
+    font-size: var(--fs-lg);
+    margin-top: var(--space-md);
+  }
+  .prose :global(p) {
+    margin-top: var(--space-sm);
+    color: var(--c-ink-soft);
+  }
+  .prose :global(a) {
+    color: var(--c-orange-ink);
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    margin-top: var(--space-sm);
+    padding-left: var(--space-md);
+  }
+  .prose :global(img) {
+    margin-top: var(--space-md);
+    border-radius: var(--radius-md);
+  }
+  .article__back {
+    margin-top: var(--space-xl);
+  }
+</style>

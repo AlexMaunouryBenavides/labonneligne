@@ -1,0 +1,38 @@
+---
+/** En-tête de section : eyebrow mono + titre display + intro optionnelle. */
+interface Props {
+  eyebrow: string;
+  title: string;
+  intro?: string;
+  /** Niveau de titre (h2 par défaut ; h1 réservé au sujet principal de la page). */
+  as?: 'h1' | 'h2';
+  align?: 'start' | 'center';
+}
+const { eyebrow, title, intro, as: Tag = 'h2', align = 'start' } = Astro.props;
+---
+
+<header class:list={['section-heading', `section-heading--${align}`]}>
+  <p class="eyebrow">{eyebrow}</p>
+  <Tag class="section-heading__title">{title}</Tag>
+  {intro && <p class="section-heading__intro">{intro}</p>}
+</header>
+
+<style>
+  .section-heading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    max-width: 46rem;
+    margin-bottom: var(--space-lg);
+  }
+  .section-heading--center {
+    align-items: center;
+    text-align: center;
+    margin-inline: auto;
+  }
+  .section-heading__intro {
+    color: var(--c-muted);
+    font-size: var(--fs-lg);
+    max-width: 50ch;
+  }
+</style>

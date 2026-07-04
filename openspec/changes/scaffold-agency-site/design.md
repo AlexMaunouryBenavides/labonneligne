@@ -12,6 +12,7 @@ font autorité sur les choix d'interface, dont deux guardrails : `ux.r11`
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Site Astro statique, performant et SEO-ready dès le départ.
 - Pattern formulaire serverless **codé une fois, recopiable** sur les futurs
   sites clients (coût marginal ≈ 0).
@@ -20,6 +21,7 @@ font autorité sur les choix d'interface, dont deux guardrails : `ux.r11`
 - Respect des guardrails UX (contraste, honnêteté) et des règles front du kit.
 
 **Non-Goals:**
+
 - Aucun CMS, back-office, base de données ou authentification.
 - Pas de prise de RDV (Cal.com écarté), pas de e-commerce.
 - Pas de contenu d'articles de blog réel, pas de vraie image de logo (placeholder).
@@ -29,6 +31,7 @@ font autorité sur les choix d'interface, dont deux guardrails : `ux.r11`
 ## Decisions
 
 ### Astro statique + une seule Pages Function
+
 Tout le site est pré-rendu en statique. La **seule** partie dynamique est la
 route du formulaire, implémentée en Cloudflare Pages Function (`functions/`).
 Alternative écartée : un endpoint Astro en SSR (« server island ») — viable, mais
@@ -36,12 +39,14 @@ la Pages Function isole proprement le secret Resend et reste réutilisable
 verbatim d'un site client à l'autre, ce qui est l'objectif business.
 
 ### Resend pour l'email, secret en variable d'environnement
+
 Envoi via Resend depuis la fonction serverless ; `RESEND_API_KEY` lue depuis
 l'environnement Cloudflare, jamais bundlée côté client. Alternative écartée :
 service tiers type Web3Forms — gardé en secours/one-shot, mais pas comme pattern
 principal car moins maîtrisé et non réutilisable « maison ».
 
 ### Design system par tokens CSS
+
 Couleurs (noir, blanc, orange-accent, orange-texte assombri), typographie et
 espacements définis comme tokens centraux (CSS custom properties). Deux nuances
 d'orange : une vive pour les gros accents, une assombrie validée WCAG AA pour le
@@ -49,17 +54,20 @@ texte (résout `ux.r11`). Alternative écartée : valeurs codées en dur — rej
 pour cohérence et maintenabilité (`ux.r5`).
 
 ### GSAP en accent, chargé de façon ciblée
+
 GSAP pilote des animations qui **servent la lecture** (tracé de « la ligne » au
 hero, transitions de section, micro-feedback), pas de la décoration (`ux.r12`).
 Chargement non bloquant pour préserver la performance perçue (`ux.r10`).
 
 ### Layout unique + composants partagés
+
 Un layout Astro commun porte `<html lang="es-CL">`, header/nav, footer NAP,
 métadonnées SEO et le bouton WhatsApp sticky. Les pages ne définissent que leur
 contenu. La grille d'offres et les cartes de projet sont des composants
 réutilisables.
 
 ### Contenu es-CL au plus près des pages
+
 Pas de système i18n : le site est mono-langue es-CL, le contenu vit directement
 dans les pages/composants. Le nom de marque reste en français.
 

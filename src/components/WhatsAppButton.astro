@@ -1,8 +1,6 @@
 ---
-import { site } from '../config/site';
-// Message pré-rempli en es-CL pour réduire la friction (ux.r8/r9).
-const text = encodeURIComponent('Hola, quiero información sobre un sitio web.');
-const href = `https://wa.me/${site.contact.whatsapp}?text=${text}`;
+import { whatsappUrl } from '../lib/contact';
+const href = whatsappUrl();
 ---
 
 <a class="wa-fab" href={href} target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
@@ -27,13 +25,17 @@ const href = `https://wa.me/${site.contact.whatsapp}?text=${text}`;
     background: var(--c-line);
     color: var(--c-on-line);
     box-shadow: var(--shadow-soft);
-    transition: transform 0.2s var(--ease-out), background 0.2s var(--ease-out);
+    transition:
+      transform 0.2s var(--ease-out),
+      background 0.2s var(--ease-out);
   }
   .wa-fab:hover {
     transform: translateY(-2px) scale(1.04);
     background: var(--c-line-deep);
   }
   @media print {
-    .wa-fab { display: none; }
+    .wa-fab {
+      display: none;
+    }
   }
 </style>

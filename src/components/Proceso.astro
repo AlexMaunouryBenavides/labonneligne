@@ -1,0 +1,229 @@
+---
+/**
+ * Section « Proceso » — sticky scroll. Grande photo duotone fixée à GAUCHE qui
+ * change quand l'étape entre dans le viewport ; liste des 4 étapes à DROITE,
+ * l'active passe en orange (IntersectionObserver). Sur mobile : plus de sticky,
+ * chaque étape affiche sa propre photo empilée.
+ *
+ * Requiert le filtre `#duotone-orange` dans la page → inclure <Duotone /> une
+ * fois (cf. src/components/Duotone.astro). Réutilisé sur l'accueil et /nosotros.
+ */
+import { Image } from 'astro:assets';
+import { processSteps } from '../data/process';
+import conversamos from '../assets/proceso/conversamos.jpg';
+import propuesta from '../assets/proceso/propuesta.jpg';
+import diseno from '../assets/proceso/diseno.jpg';
+import enlinea from '../assets/proceso/enlinea.jpg';
+
+const media = [conversamos, propuesta, diseno, enlinea];
+const steps = processSteps.map((s, i) => ({ ...s, img: media[i]! }));
+const total = String(steps.length).padStart(2, '0');
+---
+
+<div class="proceso" data-active="0">
+  <!-- Colonne image (desktop) — fixée pendant le scroll de la liste -->
+  <div class="proceso__media" aria-hidden="true">
+    {
+      steps.map((step, i) => (
+        <Image src={step.img} alt="" width={820} class="proceso__img" data-i={i} />
+      ))
+    }
+    <span class="proceso__counter">
+      <span class="proceso__counter-now" data-counter>01</span>
+      <span class="proceso__counter-rest">/ {total}</span>
+    </span>
+  </div>
+
+  <ol role="list" class="proceso__steps">
+    {
+      steps.map((step, i) => (
+        <li class="proceso__step" data-step={i}>
+          <Image src={step.img} alt="" width={640} class="proceso__mobimg" />
+          <span class="proceso__num">{String(i + 1).padStart(2, '0')}</span>
+          <h3 class="proceso__title">{step.title}</h3>
+          <p class="proceso__text">{step.text}</p>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<script>
+  const roots = document.querySelectorAll<HTMLElement>('.proceso');
+  roots.forEach((root) => {
+    const steps = root.querySelectorAll<HTMLElement>('.proceso__step');
+    const imgs = root.querySelectorAll<HTMLElement>('.proceso__img');
+    const counter = root.querySelector<HTMLElement>('[data-counter]');
+
+    const setActive = (i: number) => {
+      root.dataset.active = String(i);
+      steps.forEach((s, k) => s.classList.toggle('is-active', k === i));
+      imgs.forEach((img, k) => img.classList.toggle('is-active', k === i));
+      if (counter) counter.textContent = String(i + 1).padStart(2, '0');
+    };
+    setActive(0);
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setActive(Number((e.target as HTMLElement).dataset.step));
+          }
+        });
+      },
+      { rootMargin: '-48% 0px -48% 0px', threshold: 0 }
+    );
+    steps.forEach((s) => io.observe(s));
+  });
+</script>
+
+<style>
+  .proceso {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  /* Colonne image gauche — sticky */
+  .proceso__media {
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-md));
+    height: min(78vh, 40rem);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--c-dark);
+    box-shadow: var(--shadow-soft);
+  }
+  .proceso__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: url(#duotone-orange);
+    opacity: 0;
+    transform: scale(1.06);
+    transition:
+      opacity 0.6s var(--ease-out),
+      transform 1.2s var(--ease-out);
+  }
+  .proceso__img.is-active {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .proceso__counter {
+    position: absolute;
+    left: var(--space-md);
+    bottom: var(--space-md);
+    z-index: 2;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.3em;
+    font-family: var(--font-mono);
+    font-weight: var(--fw-bold);
+    color: var(--c-on-line);
+    font-size: var(--fs-xl);
+    text-shadow: 0 2px 12px rgba(17, 17, 17, 0.45);
+  }
+  .proceso__counter-rest {
+    opacity: 0.7;
+    font-size: var(--fs-lg);
+  }
+
+  /* Colonne liste droite */
+  .proceso__steps {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .proceso__step {
+    min-height: 62vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-2xs);
+    border-top: var(--border-thin);
+    padding-block: var(--space-lg);
+    opacity: 0.4;
+    transition:
+      opacity 0.4s var(--ease-out),
+      transform 0.4s var(--ease-out);
+  }
+  .proceso__step:first-child {
+    border-top: 0;
+  }
+  .proceso__step.is-active {
+    opacity: 1;
+  }
+  /* Photo par étape — mobile seulement */
+  .proceso__mobimg {
+    display: none;
+  }
+  .proceso__num {
+    font-family: var(--font-mono);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-sm);
+    color: var(--c-muted);
+    letter-spacing: var(--tracking-label);
+    transition: color 0.4s var(--ease-out);
+  }
+  .proceso__step.is-active .proceso__num {
+    color: var(--c-orange-ink);
+  }
+  .proceso__title {
+    font-size: var(--fs-3xl);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+  }
+  .proceso__text {
+    color: var(--c-muted);
+    font-size: var(--fs-lg);
+    max-width: 32ch;
+  }
+
+  /* Mobile : plus de sticky — photo duotone puis texte, empilés par étape */
+  @media (max-width: 52rem) {
+    .proceso {
+      grid-template-columns: 1fr;
+      gap: var(--space-xl);
+    }
+    .proceso__media {
+      display: none;
+    }
+    .proceso__step {
+      min-height: 0;
+      opacity: 1;
+      padding-block: var(--space-md);
+      gap: var(--space-xs);
+    }
+    .proceso__mobimg {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+      filter: url(#duotone-orange);
+      margin-bottom: var(--space-2xs);
+    }
+    .proceso__num {
+      color: var(--c-orange-ink);
+    }
+    .proceso__title {
+      font-size: var(--fs-2xl);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .proceso__img {
+      transition: opacity 0.2s linear;
+      transform: none;
+    }
+    .proceso__img.is-active {
+      transform: none;
+    }
+    .proceso__step {
+      transition: none;
+    }
+  }
+</style>

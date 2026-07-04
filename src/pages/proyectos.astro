@@ -1,19 +1,24 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import ProjectList from '../components/ProjectList.astro';
+import Cta from '../components/Cta.astro';
+import { projects } from '../data/projects';
 ---
 
-<BaseLayout title="Proyectos" description="Proyectos y sitios realizados por La Bonne Ligne.">
-  <section class="section container stub">
-    <p class="eyebrow">Proyectos</p>
-    <h1>Nuestros proyectos</h1>
-    <hr class="rule-line" />
-    <p class="stub__note">Próximamente — el portafolio llega en la siguiente etapa.</p>
+<BaseLayout
+  title="Proyectos"
+  description="Sitios web realizados por La Bonne Ligne y ejemplos por sector para pymes chilenas."
+>
+  <section class="section container">
+    <SectionHeading
+      as="h1"
+      eyebrow="Proyectos"
+      title="Sitios que trabajan por tu negocio"
+      intro="Algunas realizaciones y ejemplos por sector. Así puede verse el tuyo."
+    />
+    <ProjectList projects={projects} />
   </section>
-</BaseLayout>
 
-<style>
-  .stub { min-height: 50svh; }
-  .stub h1 { margin-top: var(--space-sm); }
-  .rule-line { margin-block: var(--space-md); }
-  .stub__note { color: var(--c-muted); font-family: var(--font-mono); font-size: var(--fs-sm); }
-</style>
+  <Cta title="¿Te imaginas el tuyo?" text="Cuéntanos tu rubro y te mostramos cómo se vería." />
+</BaseLayout>

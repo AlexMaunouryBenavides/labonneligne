@@ -6,13 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `eng-kit` is **not an application** — it is a reusable, frontmatter-indexed library of engineering
 rules (Clean Code, architecture, security, Nest/React conventions, etc.). Its purpose is to be
-**read and selectively applied to *other* projects** via OpenSpec, so the author's standards are
+**read and selectively applied to _other_ projects** via OpenSpec, so the author's standards are
 capitalized once and re-applied everywhere without rewriting or forgetting them.
 
 The content is written in **French**. Match that language when editing or adding rules.
 
 There is no build, no test suite, and no runtime for this repo itself. The `tooling/` configs are
-*payloads* meant to be copied into target projects, not run here.
+_payloads_ meant to be copied into target projects, not run here.
 
 ## Two modes of operation (the "commands")
 
@@ -26,7 +26,7 @@ Instead of build/lint/test, an agent does one of two jobs. The authoritative spe
    `Check (review)` lines + `## Anti-patterns` for the relevant disciplines, and report violations
    **by rule id** (e.g. `validation.r4`) scoped strictly to the diff.
 
-When *authoring* rules in this repo (the common task here), there is no command to run — you edit
+When _authoring_ rules in this repo (the common task here), there is no command to run — you edit
 markdown. The only "test" of a rule is that its frontmatter is complete and its body follows the
 template.
 

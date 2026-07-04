@@ -29,6 +29,7 @@ contenu/blog et le pattern formulaire serverless pour que le passage
 ## Capabilities
 
 ### New Capabilities
+
 - `site-foundation`: scaffold Astro statique, hygiène du repo (`.gitignore`),
   design system (palette, typo, tokens), layout commun (header/nav/footer/NAP),
   base SEO/i18n es-CL, WhatsApp sticky.
@@ -41,6 +42,7 @@ contenu/blog et le pattern formulaire serverless pour que le passage
   vide au lancement, prête à publier.
 
 ### Modified Capabilities
+
 <!-- Aucune : projet neuf, pas de spec existante à modifier. -->
 
 ## Impact

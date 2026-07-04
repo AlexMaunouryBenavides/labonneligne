@@ -1,43 +1,134 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
-import { site } from '../config/site';
+import SectionHeading from '../components/SectionHeading.astro';
+import PlansGrid from '../components/PlansGrid.astro';
+import ProjectList from '../components/ProjectList.astro';
+import Proceso from '../components/Proceso.astro';
+import Duotone from '../components/Duotone.astro';
+import Queo from '../components/Queo.astro';
+import Cta from '../components/Cta.astro';
+import LocalBusinessSchema from '../components/LocalBusinessSchema.astro';
+import { Image } from 'astro:assets';
+import heroImg from '../assets/hero-img.jpg';
+import { projects } from '../data/projects';
+import { whatsappUrl } from '../lib/contact';
 
-const waText = encodeURIComponent('Hola, quiero información sobre un sitio web.');
-const waHref = `https://wa.me/${site.contact.whatsapp}?text=${waText}`;
+const waHref = whatsappUrl();
+const featuredProjects = projects.slice(0, 3);
 ---
 
-<BaseLayout>
-  <!-- HERO — la thèse de la page : « la ligne » qui se trace + l'accroche.
-       Les autres sections de l'accueil (planes, proyectos, por qué, cómo)
-       arrivent au palier 3. -->
+<BaseLayout description="Diseño web para pymes en Chile: sitios rápidos, claros y con SEO local. Tecnología francesa, presencia 100 % chilena.">
+  <LocalBusinessSchema slot="head" />
+
+  <!-- HERO — contenu à gauche, image à droite. Mot-clé souligné par « la ligne ». -->
   <section class="hero">
     <div class="container hero__inner">
       <div class="hero__copy">
         <p class="eyebrow">Diseño web · pymes · es-CL</p>
         <h1 class="hero__title">
-          Creamos la <span class="hero__hl">presencia web</span> que tu empresa merece.
+          Creamos la <span class="hero__mark"
+            >presencia web<svg
+              class="hero__underline"
+              viewBox="0 0 240 16"
+              preserveAspectRatio="none"
+              fill="none"
+              stroke-width="7"
+              stroke-linecap="round"
+              aria-hidden="true"
+              ><path
+                class="js-draw"
+                d="M4 9 C64 5 120 5 176 8 S226 10 236 8"
+                stroke="var(--c-line)"></path></svg
+          ></span> que tu empresa merece.
         </h1>
         <p class="hero__lead">
-          Sitios rápidos, claros y hechos para que tus clientes te encuentren.
-          Tecnología francesa, presencia 100 % chilena.
+          Sitios rápidos, claros y hechos para que tus clientes te encuentren. Tecnología francesa,
+          presencia 100 % chilena.
         </p>
         <div class="hero__actions">
           <Button href="/planes">Ver planes</Button>
           <Button href={waHref} variant="ghost">Hablar por WhatsApp</Button>
         </div>
-        <p class="hero__slogan">{site.slogan}</p>
+        <ul role="list" class="hero__stats">
+          <li class="hero__stat">
+            <span class="hero__stat-num">100 %</span>
+            <span class="hero__stat-label">Presencia chilena</span>
+          </li>
+          <li class="hero__stat">
+            <span class="hero__stat-num">FR · CL</span>
+            <span class="hero__stat-label">Técnica francesa, trato local</span>
+          </li>
+        </ul>
       </div>
 
-      <!-- Trait signature : grande "ligne" tracée par GSAP -->
-      <div class="hero__art" aria-hidden="true">
-        <svg viewBox="0 0 200 260" fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-          <path class="js-draw" d="M40 20 L40 200 L180 200" stroke="var(--c-ink)" />
-          <path class="js-draw" d="M170 240 L170 60 L20 60" stroke="var(--c-line)" />
-        </svg>
+      <div class="hero__media">
+        <Image
+          class="hero__img"
+          src={heroImg}
+          alt="Equipo trabajando frente al skyline de Santiago y la cordillera al atardecer"
+          widths={[480, 720, 1024]}
+          sizes="(max-width: 52rem) 92vw, 48vw"
+          loading="eager"
+          fetchpriority="high"
+        />
       </div>
     </div>
   </section>
+
+  <!-- QUÉ obtienes — bénéfices : bento (3 surfaces de marque) -->
+  <section class="section">
+    <div class="container">
+      <SectionHeading eyebrow="Qué obtienes" title="Una presencia web que trabaja por ti" />
+      <Duotone />
+      <Queo />
+    </div>
+  </section>
+
+  <!-- PLANES — aperçu -->
+  <section class="section container">
+    <SectionHeading
+      eyebrow="Planes"
+      title="Precios claros, en pesos chilenos"
+      intro="Compra única o arriendo sin preocupaciones. Tú eliges."
+    />
+    <PlansGrid />
+    <p class="more-link">
+      <a href="/planes">Ver planes en detalle <span aria-hidden="true">→</span></a>
+    </p>
+  </section>
+
+  <!-- CÓMO — processus -->
+  <section class="section">
+    <div class="container">
+      <SectionHeading eyebrow="Cómo trabajamos" title="Simple, de principio a fin" />
+      <Proceso />
+    </div>
+  </section>
+
+  <!-- PROYECTOS — aperçu -->
+  <section class="section container">
+    <SectionHeading eyebrow="Proyectos" title="Sitios que dan resultados" />
+    <ProjectList projects={featuredProjects} />
+    <p class="more-link">
+      <a href="/proyectos">Ver todos los proyectos <span aria-hidden="true">→</span></a>
+    </p>
+  </section>
+
+  <!-- POR QUÉ — positionnement du duo -->
+  <section class="section">
+    <div class="container porque">
+      <p class="eyebrow">Por qué La Bonne Ligne</p>
+      <p class="porque__statement">
+        Saber hacer técnico de <strong>Francia</strong>, acompañamiento cercano y
+        <strong> 100 % chileno</strong>. Tú te dedicas a tu negocio; nosotros, a tu presencia en
+        línea.
+      </p>
+      <Button href="/nosotros" variant="ghost">Conócenos</Button>
+    </div>
+  </section>
+
+  <Cta />
 </BaseLayout>
 
 <style>
@@ -46,21 +137,34 @@ const waHref = `https://wa.me/${site.contact.whatsapp}?text=${waText}`;
   }
   .hero__inner {
     display: grid;
-    grid-template-columns: 1.4fr 0.8fr;
-    align-items: center;
-    gap: var(--space-xl);
+    grid-template-columns: 1fr 0.95fr;
+    align-items: stretch;
+    gap: var(--space-2xl);
   }
   .hero__title {
-    font-size: var(--fs-hero);
+    font-family: var(--font-hero);
+    font-size: clamp(2.6rem, 4.6vw, 4.5rem);
+    line-height: 1.18;
     margin-top: var(--space-sm);
-    max-width: 16ch;
+    max-width: 13ch;
   }
-  .hero__hl {
-    color: var(--c-orange-ink);
+  /* Mot-clé souligné par « la ligne » (tracée au chargement) */
+  .hero__mark {
+    position: relative;
+    white-space: nowrap;
+  }
+  .hero__underline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.04em;
+    width: 100%;
+    height: 0.16em;
+    overflow: visible;
   }
   .hero__lead {
     margin-top: var(--space-md);
-    max-width: 46ch;
+    max-width: 44ch;
     font-size: var(--fs-lg);
     color: var(--c-muted);
   }
@@ -70,31 +174,83 @@ const waHref = `https://wa.me/${site.contact.whatsapp}?text=${waText}`;
     gap: var(--space-sm);
     margin-top: var(--space-lg);
   }
-  .hero__slogan {
-    margin-top: var(--space-lg);
-    font-family: var(--font-mono);
+  .hero__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xl);
+    margin: var(--space-xl) 0 0;
+  }
+  .hero__stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+  }
+  .hero__stat-num {
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-xl);
+    line-height: 1;
+    letter-spacing: var(--tracking-tight);
+  }
+  .hero__stat-label {
     font-size: var(--fs-sm);
-    color: var(--c-ink);
+    color: var(--c-muted);
   }
-  .hero__art {
-    justify-self: center;
+  .hero__media {
+    width: 100%;
+    min-height: 100%;
   }
-  .hero__art svg {
-    width: min(100%, 18rem);
-    height: auto;
-    overflow: visible;
+  .hero__img {
+    width: 100%;
+    height: 100%;
+    min-height: 22rem;
+    object-fit: cover;
+    object-position: 50% 35%;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .more-link {
+    margin-top: var(--space-lg);
+    text-align: center;
+  }
+  .more-link a {
+    font-weight: var(--fw-semibold);
+    color: var(--c-orange-ink);
+    text-decoration: none;
+  }
+  .more-link a:hover {
+    text-decoration: underline;
+  }
+
+  .porque {
+    max-width: 60rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: flex-start;
+  }
+  .porque__statement {
+    font-family: var(--font-display);
+    font-size: var(--fs-2xl);
+    font-weight: var(--fw-semibold);
+    line-height: var(--leading-snug);
   }
 
   @media (max-width: 52rem) {
     .hero__inner {
       grid-template-columns: 1fr;
+      gap: var(--space-lg);
     }
-    .hero__art {
+    .hero__media {
       order: -1;
-      justify-self: start;
+      justify-self: stretch;
+      min-height: 0;
     }
-    .hero__art svg {
-      width: 9rem;
+    .hero__img {
+      height: auto;
+      min-height: 0;
+      aspect-ratio: 16 / 11;
     }
   }
 </style>

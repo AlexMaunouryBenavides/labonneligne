@@ -1,19 +1,136 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import PlansGrid from '../components/PlansGrid.astro';
+import Cta from '../components/Cta.astro';
+import { includedEverywhere } from '../data/plans';
+
+const faqs = [
+  {
+    q: '¿Cuál es la diferencia entre compra y arriendo?',
+    a: 'En compra única, el sitio es tuyo. En arriendo, nosotros lo alojamos y mantenemos por una mensualidad, con un compromiso de 12 a 24 meses.',
+  },
+  {
+    q: '¿Qué pasa al final del arriendo?',
+    a: 'Lo conversamos contigo antes del vencimiento: puedes renovar o detener el servicio.',
+  },
+  {
+    q: '¿El hospedaje y la mantención están incluidos?',
+    a: 'Sí, en el arriendo. En compra única el sitio queda alojado y puedes contratar la mantención aparte.',
+  },
+  {
+    q: '¿Hacen tiendas online o back-end?',
+    a: 'Sí, como proyecto a medida, cotizado por separado.',
+  },
+];
 ---
 
-<BaseLayout title="Planes" description="Planes de diseño web para pymes: vitrina, estándar y a medida. En compra única o arriendo.">
-  <section class="section container stub">
-    <p class="eyebrow">Planes</p>
-    <h1>Planes y precios</h1>
-    <hr class="rule-line" />
-    <p class="stub__note">Próximamente — la grilla de planes llega en la siguiente etapa.</p>
+<BaseLayout
+  title="Planes"
+  description="Planes de diseño web para pymes en Chile: vitrina, estándar y a medida. En compra única o arriendo, precios en CLP."
+>
+  <section class="section container">
+    <SectionHeading
+      as="h1"
+      eyebrow="Planes y precios"
+      title="Un plan para cada etapa de tu empresa"
+      intro="Precios claros en pesos chilenos. Elige comprarlo una vez o arrendarlo sin preocuparte de nada."
+    />
+    <PlansGrid />
+
+    <div class="included">
+      <p class="eyebrow">Incluido en todos los planes</p>
+      <ul role="list" class="included__list">
+        {includedEverywhere.map((item) => <li>{item}</li>)}
+      </ul>
+      <p class="included__sea">
+        ¿Publicidad en Google? Gestionamos tu campaña (SEA) <strong>sobre cotización</strong>, según
+        tu presupuesto.
+      </p>
+    </div>
   </section>
+
+  <section class="section">
+    <div class="container faq">
+      <SectionHeading eyebrow="Preguntas frecuentes" title="Lo que suelen preguntarnos" />
+      <div class="faq__list">
+        {
+          faqs.map((item) => (
+            <details class="faq__item">
+              <summary class="faq__q">{item.q}</summary>
+              <p class="faq__a">{item.a}</p>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <Cta />
 </BaseLayout>
 
 <style>
-  .stub { min-height: 50svh; }
-  .stub h1 { margin-top: var(--space-sm); }
-  .rule-line { margin-block: var(--space-md); }
-  .stub__note { color: var(--c-muted); font-family: var(--font-mono); font-size: var(--fs-sm); }
+  .included {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: var(--border-thin);
+  }
+  .included__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-md);
+    margin: var(--space-sm) 0;
+  }
+  .included__list li {
+    position: relative;
+    padding-left: 1.4rem;
+    font-weight: var(--fw-medium);
+  }
+  .included__list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 0.8rem;
+    height: 2px;
+    background: var(--c-line);
+    border-radius: var(--radius-pill);
+  }
+  .included__sea {
+    color: var(--c-muted);
+    max-width: 52ch;
+  }
+
+  .faq__list {
+    display: flex;
+    flex-direction: column;
+    max-width: 48rem;
+  }
+  .faq__item {
+    border-bottom: var(--border-thin);
+  }
+  .faq__q {
+    cursor: pointer;
+    padding: var(--space-sm) 0;
+    font-family: var(--font-display);
+    font-weight: var(--fw-semibold);
+    font-size: var(--fs-lg);
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-sm);
+  }
+  .faq__q::after {
+    content: '+';
+    color: var(--c-orange-ink);
+    font-weight: var(--fw-bold);
+  }
+  .faq__item[open] .faq__q::after {
+    content: '–';
+  }
+  .faq__a {
+    padding-bottom: var(--space-sm);
+    color: var(--c-muted);
+    max-width: 60ch;
+  }
 </style>

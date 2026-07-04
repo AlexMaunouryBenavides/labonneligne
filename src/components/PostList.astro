@@ -1,0 +1,80 @@
+---
+/** Liste d'articles réutilisée par l'index blog et les pages de catégorie. */
+import type { Post } from '../lib/blog';
+import { slugify } from '../lib/blog';
+import { formatDate } from '../lib/format';
+
+interface Props {
+  posts: Post[];
+}
+const { posts } = Astro.props;
+---
+
+<ul role="list" class="posts">
+  {
+    posts.map((post) => (
+      <li class="post">
+        <p class="post__meta">
+          <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+          <a class="post__cat" href={`/blog/categoria/${slugify(post.data.category)}`}>
+            {post.data.category}
+          </a>
+        </p>
+        <h2 class="post__title">
+          <a href={`/blog/${post.id}`}>{post.data.title}</a>
+        </h2>
+        <p class="post__desc">{post.data.description}</p>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .posts {
+    display: grid;
+    gap: var(--space-lg);
+    margin: 0;
+    max-width: 52rem;
+  }
+  .post {
+    padding-bottom: var(--space-lg);
+    border-bottom: var(--border-thin);
+  }
+  .post:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+  .post__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+  .post__cat {
+    color: var(--c-orange-ink);
+    text-decoration: none;
+  }
+  .post__cat:hover {
+    text-decoration: underline;
+  }
+  .post__title {
+    font-size: var(--fs-xl);
+    margin-top: var(--space-2xs);
+  }
+  .post__title a {
+    text-decoration: none;
+  }
+  .post__title a:hover {
+    color: var(--c-orange-ink);
+  }
+  .post__desc {
+    color: var(--c-muted);
+    margin-top: var(--space-2xs);
+    max-width: 60ch;
+  }
+</style>

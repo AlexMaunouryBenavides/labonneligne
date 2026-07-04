@@ -1,0 +1,36 @@
+---
+/**
+ * Défs SVG du filtre duotone de marque — à inclure UNE fois par page qui
+ * l'utilise. Mappe la luminance des photos sur la rampe ink → orange → crème
+ * (#141414 → #f4621e → highlights clairs) : unifie n'importe quelle photo dans
+ * l'identité, motif « la ligne ». Appliqué via `filter: url(#duotone-orange)`.
+ */
+---
+
+<svg class="duotone-defs" aria-hidden="true" focusable="false" width="0" height="0">
+  <filter id="duotone-orange" color-interpolation-filters="sRGB">
+    <!-- 1. désaturation (luminance perçue) -->
+    <feColorMatrix
+      type="matrix"
+      values="0.2126 0.7152 0.0722 0 0
+              0.2126 0.7152 0.0722 0 0
+              0.2126 0.7152 0.0722 0 0
+              0      0      0      1 0"
+    ></feColorMatrix>
+    <!-- 2. rampe tritone : ombres → ink, midtones → orange, hautes lumières → crème -->
+    <feComponentTransfer>
+      <feFuncR type="table" tableValues="0.078 0.957 1"></feFuncR>
+      <feFuncG type="table" tableValues="0.078 0.384 0.94"></feFuncG>
+      <feFuncB type="table" tableValues="0.086 0.118 0.86"></feFuncB>
+    </feComponentTransfer>
+  </filter>
+</svg>
+
+<style>
+  .duotone-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+</style>

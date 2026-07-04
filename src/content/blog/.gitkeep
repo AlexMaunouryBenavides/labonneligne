@@ -1,0 +1,3 @@
+# Dossier des articles de blog (Astro content collection).
+# Vide au lancement : déposer ici des fichiers .md conformes au schéma
+# défini dans src/content.config.ts pour publier un article.

@@ -1,0 +1,143 @@
+---
+import { formatCLP } from '../lib/format';
+import Button from './Button.astro';
+import type { Plan } from '../data/plans';
+
+interface Props {
+  plan: Plan;
+}
+const { plan } = Astro.props;
+
+const onceLabel = plan.priceOnce != null ? formatCLP(plan.priceOnce) : null;
+const monthLabel = plan.priceMonth != null ? formatCLP(plan.priceMonth) : null;
+---
+
+<article class:list={['offer', { 'offer--featured': plan.highlighted }]}>
+  {plan.highlighted && <span class="offer__badge">Más elegido</span>}
+
+  <h3 class="offer__name">{plan.name}</h3>
+  <p class="offer__tagline">{plan.tagline}</p>
+
+  <div class="offer__price">
+    {
+      plan.custom ? (
+        <span class="offer__custom">A conversar</span>
+      ) : (
+        <>
+          <span data-price="once" class="offer__amount">
+            {onceLabel}
+            <span class="offer__per">pago único</span>
+          </span>
+          <span data-price="month" class="offer__amount">
+            {monthLabel}
+            <span class="offer__per">/ mes</span>
+          </span>
+        </>
+      )
+    }
+  </div>
+
+  <ul role="list" class="offer__features">
+    {plan.features.map((feature) => <li>{feature}</li>)}
+  </ul>
+
+  {plan.note && <p class="offer__note">{plan.note}</p>}
+
+  <Button href="/contacto" variant={plan.highlighted ? 'primary' : 'ghost'} class="offer__cta">
+    {plan.custom ? 'Conversemos' : 'Empezar'}
+  </Button>
+</article>
+
+<style>
+  .offer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding: var(--space-lg);
+    background: var(--c-paper);
+    border: var(--border-thin);
+    border-radius: var(--radius-lg);
+    position: relative;
+  }
+  .offer--featured {
+    border-color: var(--c-line);
+    box-shadow: var(--shadow-soft);
+  }
+  .offer__badge {
+    position: absolute;
+    top: calc(-0.7rem);
+    left: var(--space-lg);
+    background: var(--c-line);
+    color: var(--c-on-line);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-pill);
+  }
+  .offer__name {
+    font-size: var(--fs-xl);
+  }
+  .offer__tagline {
+    color: var(--c-muted);
+    font-size: var(--fs-sm);
+    min-height: 2.6em;
+  }
+  .offer__price {
+    margin-block: var(--space-xs) var(--space-sm);
+    padding-bottom: var(--space-sm);
+    border-bottom: var(--border-thin);
+  }
+  .offer__amount {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-2xl);
+    color: var(--c-ink);
+  }
+  .offer__per,
+  .offer__custom {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-regular);
+    color: var(--c-muted);
+  }
+  .offer__custom {
+    font-size: var(--fs-xl);
+    color: var(--c-orange-ink);
+  }
+  .offer__features {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    margin: 0;
+    flex: 1;
+  }
+  .offer__features li {
+    position: relative;
+    padding-left: 1.5rem;
+    font-size: var(--fs-sm);
+  }
+  .offer__features li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 0.8rem;
+    height: 2px;
+    background: var(--c-line);
+    border-radius: var(--radius-pill);
+  }
+  .offer__note {
+    font-size: var(--fs-label);
+    color: var(--c-muted);
+  }
+  .offer__cta {
+    margin-top: var(--space-sm);
+    width: 100%;
+  }
+</style>
