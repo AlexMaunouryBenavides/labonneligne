@@ -1,0 +1,287 @@
+---
+/**
+ * Proposition E — « Configurador » : un seul plan affiché en grand à la fois.
+ * Onglets Vitrina / Estándar / A medida avec un indicateur qui glisse sur
+ * « la ligne » (signature de marque appliquée à un sélecteur). Réduit la
+ * charge cognitive de la comparaison ; le plan actif reçoit beaucoup d'espace.
+ * Ouvre par défaut sur le plan « más elegido ».
+ */
+import { formatCLP } from '../../lib/format';
+import Button from '../Button.astro';
+import { plans } from '../../data/plans';
+
+const defaultIndex = Math.max(
+  plans.findIndex((p) => p.highlighted),
+  0,
+);
+---
+
+<div class="config" data-price-toggle data-mode="once" data-active={defaultIndex}>
+  <div class="config__toggle" role="group" aria-label="Modo de pago">
+    <button type="button" class="config__opt is-active" data-mode-btn="once" aria-pressed="true">
+      Compra única
+    </button>
+    <button type="button" class="config__opt" data-mode-btn="month" aria-pressed="false">
+      Arriendo / mes
+    </button>
+  </div>
+
+  <div class="config__switch" role="tablist" aria-label="Elegir plan">
+    {
+      plans.map((plan, i) => (
+        <button
+          type="button"
+          class="config__tab"
+          role="tab"
+          data-tab-btn={i}
+          aria-selected={i === defaultIndex ? 'true' : 'false'}
+        >
+          {plan.name}
+        </button>
+      ))
+    }
+    <span class="config__indicator" aria-hidden="true"></span>
+  </div>
+
+  <div class="config__stage">
+    {
+      plans.map((plan, i) => (
+        <article class="config__panel" data-panel={i}>
+          <div class="config__col">
+            <p class="eyebrow">Plan</p>
+            <h3 class="config__name">{plan.name}</h3>
+            <p class="config__tagline">{plan.tagline}</p>
+
+            <div class="config__price">
+              {plan.custom ? (
+                <span class="config__custom">A conversar</span>
+              ) : (
+                <>
+                  <span data-price="once" class="config__amount">
+                    {formatCLP(plan.priceOnce!)}
+                    <span class="config__per">pago único</span>
+                  </span>
+                  <span data-price="month" class="config__amount">
+                    {formatCLP(plan.priceMonth!)}
+                    <span class="config__per">/ mes</span>
+                  </span>
+                </>
+              )}
+            </div>
+
+            {plan.note && <p class="config__note">{plan.note}</p>}
+
+            <Button
+              href="/contacto"
+              variant={plan.highlighted ? 'primary' : 'ghost'}
+              class="config__cta"
+            >
+              {plan.custom ? 'Conversemos' : 'Empezar'}
+            </Button>
+          </div>
+
+          <div class="config__col">
+            <p class="eyebrow">Incluye</p>
+            <ul role="list" class="config__features">
+              {plan.features.map((f) => (
+                <li>{f}</li>
+              ))}
+            </ul>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</div>
+
+<script define:vars={{ defaultIndex }}>
+  document.querySelectorAll('.config').forEach((root) => {
+    const tabs = root.querySelectorAll('[data-tab-btn]');
+    const switchEl = root.querySelector('.config__switch');
+    const panels = root.querySelectorAll('.config__panel');
+
+    const setActive = (i) => {
+      root.dataset.active = String(i);
+      switchEl.style.setProperty('--active-i', String(i));
+      tabs.forEach((t, k) => t.setAttribute('aria-selected', String(k === i)));
+      panels.forEach((p) => p.classList.toggle('is-active', Number(p.dataset.panel) === i));
+    };
+    setActive(defaultIndex);
+    tabs.forEach((btn, i) => btn.addEventListener('click', () => setActive(i)));
+
+    const priceButtons = root.querySelectorAll('[data-mode-btn]');
+    priceButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const mode = button.dataset.modeBtn ?? 'once';
+        root.setAttribute('data-mode', mode);
+        priceButtons.forEach((other) => {
+          const active = other === button;
+          other.classList.toggle('is-active', active);
+          other.setAttribute('aria-pressed', String(active));
+        });
+      });
+    });
+  });
+</script>
+
+<style is:global>
+  .config[data-mode='once'] [data-price='month'],
+  .config[data-mode='month'] [data-price='once'] {
+    display: none;
+  }
+</style>
+
+<style>
+  .config__toggle {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    margin-bottom: var(--space-lg);
+    background: var(--c-paper-2);
+    border-radius: var(--radius-pill);
+  }
+  .config__opt {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--c-muted);
+    transition:
+      background 0.2s var(--ease-out),
+      color 0.2s var(--ease-out);
+  }
+  .config__opt.is-active {
+    background: var(--c-ink);
+    color: var(--c-paper);
+  }
+
+  .config__switch {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 30rem;
+    border-bottom: 2px solid var(--c-hairline);
+    --active-i: 1;
+  }
+  .config__tab {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    padding: var(--space-sm) var(--space-2xs);
+    font-family: var(--font-body);
+    font-weight: var(--fw-semibold);
+    font-size: var(--fs-base);
+    color: var(--c-muted);
+    transition: color 0.25s var(--ease-out);
+  }
+  .config__tab[aria-selected='true'] {
+    color: var(--c-ink);
+  }
+  .config__indicator {
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    height: 3px;
+    width: calc(100% / 3);
+    background: var(--c-line);
+    border-radius: var(--radius-pill);
+    transform: translateX(calc(var(--active-i) * 100%));
+    transition: transform 0.35s var(--ease-out);
+  }
+
+  .config__stage {
+    margin-top: var(--space-xl);
+    position: relative;
+  }
+  .config__panel {
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2xl);
+  }
+  .config__panel.is-active {
+    display: grid;
+  }
+  .config__col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+  .config__name {
+    font-size: var(--fs-3xl);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin-top: var(--space-3xs);
+  }
+  .config__tagline {
+    color: var(--c-muted);
+    font-size: var(--fs-lg);
+    max-width: 34ch;
+  }
+  .config__price {
+    margin-top: var(--space-sm);
+  }
+  .config__amount {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-3xl);
+  }
+  .config__per {
+    font-family: var(--font-mono);
+    font-size: var(--fs-base);
+    font-weight: var(--fw-regular);
+    color: var(--c-muted);
+  }
+  .config__custom {
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-2xl);
+    color: var(--c-orange-ink);
+  }
+  .config__note {
+    font-size: var(--fs-label);
+    color: var(--c-muted);
+    margin-top: var(--space-2xs);
+  }
+  .config__cta {
+    margin-top: var(--space-sm);
+    align-self: flex-start;
+  }
+
+  .config__features {
+    margin: var(--space-2xs) 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  .config__features li {
+    position: relative;
+    padding-left: 1.6rem;
+    font-size: var(--fs-lg);
+  }
+  .config__features li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 0.9rem;
+    height: 2px;
+    background: var(--c-line);
+    border-radius: var(--radius-pill);
+  }
+
+  @media (max-width: 52rem) {
+    .config__panel.is-active {
+      grid-template-columns: 1fr;
+      gap: var(--space-lg);
+    }
+    .config__switch {
+      max-width: none;
+    }
+  }
+</style>

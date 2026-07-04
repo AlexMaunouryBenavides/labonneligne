@@ -2,8 +2,12 @@
 import { render } from 'astro:content';
 import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getPublishedPosts, slugify } from '../../lib/blog';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import PostMeta from '../../components/PostMeta.astro';
+import ReadingProgress from '../../components/ReadingProgress.astro';
+import { getPublishedPosts, getAdjacentPosts, getRelatedPosts, slugify } from '../../lib/blog';
 import { formatDate } from '../../lib/format';
+import { whatsappUrl } from '../../lib/contact';
 
 // Une page par article publié ; collection vide ⇒ aucune page (blog câblé mais vide).
 export async function getStaticPaths() {
@@ -13,6 +17,11 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+
+const allPosts = await getPublishedPosts();
+const { prev, next } = getAdjacentPosts(allPosts, post);
+const related = getRelatedPosts(post, allPosts, 3);
+const waShareHref = whatsappUrl(`Mira este artículo: ${post.data.title} — ${Astro.url.href}`);
 ---
 
 <BaseLayout
@@ -20,15 +29,28 @@ const { Content } = await render(post);
   description={post.data.description}
   image={post.data.image?.src}
 >
+  <ReadingProgress />
   <article class="section container article">
-    <p class="eyebrow">
-      <a href={`/blog/categoria/${slugify(post.data.category)}`}>{post.data.category}</a>
-    </p>
-    <h1 class="article__title">{post.data.title}</h1>
-    <p class="article__meta">
-      <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
-    </p>
+    <Breadcrumb
+      items={[
+        { label: post.data.category, href: `/blog/categoria/${slugify(post.data.category)}` },
+        { label: post.data.title },
+      ]}
+    />
+
+    <header class="article__head">
+      <h1 class="article__title">{post.data.title}</h1>
+      {post.data.description && <p class="article__dek">{post.data.description}</p>}
+      <PostMeta post={post} showReadingTime />
+      {
+        post.data.updated && (
+          <p class="article__updated">Actualizado el {formatDate(post.data.updated)}</p>
+        )
+      }
+    </header>
+
     <hr class="rule-line" />
+
     {
       post.data.image && (
         <Image
@@ -41,9 +63,76 @@ const { Content } = await render(post);
         />
       )
     }
+
     <div class="prose">
       <Content />
     </div>
+
+    {
+      post.data.tags && post.data.tags.length > 0 && (
+        <div class="article__tags">
+          <span class="eyebrow">Etiquetas</span>
+          <ul role="list" class="article__tags-list">
+            {post.data.tags.map((tag) => (
+              <li>
+                <a href={`/blog/tags/${slugify(tag)}`}>{tag}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+
+    <p class="article__share">
+      <a href={waShareHref} target="_blank" rel="noopener">Compartir por WhatsApp →</a>
+    </p>
+
+    <hr class="rule-line" />
+
+    {
+      (prev || next) && (
+        <nav class="article__adjacent" aria-label="Navegación entre artículos">
+          {prev ? (
+            <a class="article__adjacent-link" href={`/blog/${prev.id}`}>
+              <span class="article__adjacent-label">← Anterior</span>
+              <span class="article__adjacent-title">{prev.data.title}</span>
+            </a>
+          ) : (
+            <span />
+          )}
+          {next ? (
+            <a
+              class="article__adjacent-link article__adjacent-link--next"
+              href={`/blog/${next.id}`}
+            >
+              <span class="article__adjacent-label">Siguiente →</span>
+              <span class="article__adjacent-title">{next.data.title}</span>
+            </a>
+          ) : (
+            <span />
+          )}
+        </nav>
+      )
+    }
+
+    {
+      related.length > 0 && (
+        <section class="article__related">
+          <h2 class="article__related-title">Más como esto</h2>
+          <ul role="list" class="article__related-list">
+            {related.map((r) => (
+              <li class="related-card">
+                <PostMeta post={r} />
+                <h3 class="related-card__title">
+                  <a href={`/blog/${r.id}`}>{r.data.title}</a>
+                </h3>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
     <p class="article__back"><a href="/blog">← Volver al blog</a></p>
   </article>
 </BaseLayout>
@@ -52,17 +141,27 @@ const { Content } = await render(post);
   .article {
     max-width: 46rem;
   }
-  .eyebrow a {
-    text-decoration: none;
+  .article__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
   }
   .article__title {
-    margin-top: var(--space-xs);
+    line-height: 0.95;
   }
-  .article__meta {
+  .article__dek {
+    font-family: var(--font-display);
+    font-weight: var(--fw-regular);
+    font-style: italic;
+    text-transform: none;
+    font-size: var(--fs-lg);
     color: var(--c-muted);
+    max-width: 60ch;
+  }
+  .article__updated {
     font-family: var(--font-mono);
-    font-size: var(--fs-sm);
-    margin-top: var(--space-sm);
+    font-size: var(--fs-label);
+    color: var(--c-muted);
   }
   .rule-line {
     margin-block: var(--space-lg);
@@ -70,9 +169,12 @@ const { Content } = await render(post);
   .article__cover {
     width: 100%;
     height: auto;
-    border-radius: var(--radius-md);
+    border: var(--border-hard);
+    box-shadow: var(--shadow-hard);
     margin-bottom: var(--space-lg);
   }
+
+  /* — Prose — */
   .prose :global(h2) {
     font-size: var(--fs-xl);
     margin-top: var(--space-lg);
@@ -84,6 +186,7 @@ const { Content } = await render(post);
   .prose :global(p) {
     margin-top: var(--space-sm);
     color: var(--c-ink-soft);
+    line-height: var(--leading-body);
   }
   .prose :global(a) {
     color: var(--c-orange-ink);
@@ -93,11 +196,206 @@ const { Content } = await render(post);
     margin-top: var(--space-sm);
     padding-left: var(--space-md);
   }
+  .prose :global(li + li) {
+    margin-top: var(--space-3xs);
+  }
   .prose :global(img) {
     margin-top: var(--space-md);
-    border-radius: var(--radius-md);
+    border: var(--border-hard);
   }
+  .prose :global(strong) {
+    font-weight: var(--fw-bold);
+  }
+
+  /* Lettrine — initial-letter avec repli float pour navigateurs non compatibles. */
+  .prose > :global(p:first-of-type)::first-letter {
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    color: var(--c-orange-ink);
+  }
+  @supports (initial-letter: 3) or (-webkit-initial-letter: 3) {
+    .prose > :global(p:first-of-type)::first-letter {
+      initial-letter: 3;
+      -webkit-initial-letter: 3;
+      margin-right: 0.15em;
+    }
+  }
+  @supports not (initial-letter: 3) {
+    .prose > :global(p:first-of-type)::first-letter {
+      float: left;
+      font-size: 3.4em;
+      line-height: 0.82;
+      margin: 0.03em 0.1em 0 0;
+    }
+  }
+
+  /* Callouts (cf. src/plugins/remark-callouts.ts) */
+  .prose :global(.callout) {
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    border: 2px solid var(--c-ink);
+    border-left: 4px solid var(--c-ink);
+    background: var(--c-paper-2);
+  }
+  .prose :global(.callout__label) {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    margin: 0;
+  }
+  .prose :global(.callout__body p) {
+    margin-top: var(--space-2xs);
+  }
+  .prose :global(.callout--tip) {
+    border-left-color: var(--c-line);
+  }
+  .prose :global(.callout--tip .callout__label) {
+    color: var(--c-orange-ink);
+  }
+  .prose :global(.callout--importante) {
+    background: var(--c-ink);
+    color: var(--c-paper);
+    border-color: var(--c-ink);
+  }
+  .prose :global(.callout--importante .callout__label) {
+    color: var(--c-line);
+  }
+  .prose :global(.callout--importante .callout__body p) {
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .prose :global(.callout--advertencia) {
+    border-left-color: var(--c-danger);
+  }
+  .prose :global(.callout--advertencia .callout__label) {
+    color: var(--c-danger);
+  }
+
+  /* — Tags — */
+  .article__tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-xl);
+  }
+  .article__tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin: 0;
+  }
+  .article__tags-list a {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    padding: 0.3em 0.7em;
+    border: 2px solid var(--c-ink);
+    text-decoration: none;
+    color: var(--c-ink);
+  }
+  .article__tags-list a:hover {
+    background: var(--c-ink);
+    color: var(--c-paper);
+  }
+
+  .article__share {
+    margin-top: var(--space-md);
+  }
+  .article__share a {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--c-orange-ink);
+    text-decoration: none;
+  }
+  .article__share a:hover {
+    text-decoration: underline;
+  }
+
+  /* — Précédent / suivant — */
+  .article__adjacent {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+  }
+  .article__adjacent-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    text-decoration: none;
+    color: var(--c-ink);
+  }
+  .article__adjacent-link--next {
+    text-align: right;
+    align-items: flex-end;
+  }
+  .article__adjacent-label {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--c-muted);
+  }
+  .article__adjacent-title {
+    font-family: var(--font-display);
+    font-size: var(--fs-lg);
+    line-height: 1.1;
+  }
+  .article__adjacent-link:hover .article__adjacent-title {
+    color: var(--c-orange-ink);
+  }
+
+  /* — Articles liés — */
+  .article__related {
+    margin-top: var(--space-xl);
+  }
+  .article__related-title {
+    font-size: var(--fs-xl);
+    margin-bottom: var(--space-md);
+  }
+  .article__related-list {
+    display: grid;
+    gap: var(--space-md);
+    margin: 0;
+  }
+  .related-card {
+    padding: var(--space-md);
+    border: var(--border-hard);
+    box-shadow: var(--shadow-hard);
+    transition: var(--transition-snap);
+  }
+  .related-card:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: var(--shadow-hard-hover);
+  }
+  .related-card__title {
+    font-size: var(--fs-lg);
+    margin-top: var(--space-2xs);
+  }
+  .related-card__title a {
+    text-decoration: none;
+  }
+  .related-card__title a:hover {
+    color: var(--c-orange-ink);
+  }
+
   .article__back {
     margin-top: var(--space-xl);
+  }
+
+  @media (max-width: 40rem) {
+    .article__adjacent {
+      grid-template-columns: 1fr;
+    }
+    .article__adjacent-link--next {
+      text-align: left;
+      align-items: flex-start;
+    }
   }
 </style>

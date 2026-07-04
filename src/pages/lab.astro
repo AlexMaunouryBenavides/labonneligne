@@ -1,0 +1,204 @@
+---
+/**
+ * Atelier interne (hors navigation, noindex) — comparaison de propositions.
+ * Exercice courant : section tarifs (« Planes »). Non lié depuis le site ;
+ * sert à trancher une direction avant de la promouvoir dans index.astro /
+ * planes.astro.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import TarifasComparativa from '../components/lab/TarifasComparativa.astro';
+import TarifasEscalon from '../components/lab/TarifasEscalon.astro';
+import TarifasRecibo from '../components/lab/TarifasRecibo.astro';
+import TarifasCarta from '../components/lab/TarifasCarta.astro';
+import TarifasConfigurador from '../components/lab/TarifasConfigurador.astro';
+import TarifasBaraja from '../components/lab/TarifasBaraja.astro';
+
+const proposals = [
+  {
+    id: 'comparativa',
+    label: 'A',
+    name: 'Comparativa',
+    note: 'Table éditoriale dense : colonnes = plans, lignes = Precio / Incluye / Nota. La plus scannable pour comparer d’un coup d’œil ; colonne « más elegido » en accent orange.',
+    Component: TarifasComparativa,
+  },
+  {
+    id: 'escalon',
+    label: 'B',
+    name: 'Escalón',
+    note: 'Trois tuiles en escalier montant (papier → orange → sombre), reliées par « la ligne » qui monte. L’ascension encode l’idée de grandir avec l’entreprise.',
+    Component: TarifasEscalon,
+  },
+  {
+    id: 'recibo',
+    label: 'C',
+    name: 'Recibo',
+    note: 'Chaque plan en ticket de caisse — bords perforés, typo mono, ligne TOTAL. Métaphore du devis clair et honnête, sur-marque avec « precios claros ».',
+    Component: TarifasRecibo,
+  },
+  {
+    id: 'carta',
+    label: 'D',
+    name: 'Carta',
+    note: 'Liste typographique façon carte de prix : nom relié au prix par un filet en pointillés, features en ligne compacte. Aucune carte — la plus épurée, priorité absolue à la clarté du prix.',
+    Component: TarifasCarta,
+  },
+  {
+    id: 'configurador',
+    label: 'E',
+    name: 'Configurador',
+    note: 'Un seul plan affiché en grand à la fois ; onglets avec indicateur qui glisse sur « la ligne ». Réduit la charge cognitive de la comparaison, ouvre sur le plan « más elegido ».',
+    Component: TarifasConfigurador,
+  },
+  {
+    id: 'baraja',
+    label: 'F',
+    name: 'Baraja',
+    note: 'Les 3 plans en éventail façon jeu de cartes ; la carte survolée revient au premier plan. La plus ludique et la plus risquée des six — à valider côté ton de marque.',
+    Component: TarifasBaraja,
+  },
+];
+---
+
+<BaseLayout title="Atelier · Tarifas" noindex>
+  <section class="lab-intro section">
+    <div class="container">
+      <p class="eyebrow">Atelier interne · no index</p>
+      <h1 class="lab-intro__title">Sección « Planes » — 3 direcciones</h1>
+      <p class="lab-intro__lead">
+        Mismos 3 planes (Vitrina · Estándar · A medida) y la bascula compra única / arriendo, tres
+        tratamientos. Elige uno y lo llevo a la home + /planes.
+      </p>
+      <nav class="lab-nav" aria-label="Propositions">
+        {
+          proposals.map((p) => (
+            <a class="lab-nav__link" href={`#${p.id}`}>
+              <span class="lab-nav__tag">{p.label}</span>
+              {p.name}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
+  </section>
+
+  {
+    proposals.map(({ id, label, name, note, Component }) => (
+      <section id={id} class="lab-block section">
+        <div class="container">
+          <div class="lab-block__head">
+            <span class="lab-block__tag">{label}</span>
+            <div>
+              <h2 class="lab-block__name">{name}</h2>
+              <p class="lab-block__note">{note}</p>
+            </div>
+          </div>
+
+          <div class="lab-block__demo">
+            <div class="lab-demo-head">
+              <p class="eyebrow">Planes y precios</p>
+              <h3 class="lab-demo-title">Un plan para cada etapa de tu empresa</h3>
+            </div>
+            <Component />
+          </div>
+        </div>
+      </section>
+    ))
+  }
+</BaseLayout>
+
+<style>
+  .lab-intro {
+    padding-bottom: var(--space-lg);
+  }
+  .lab-intro__title {
+    font-size: var(--fs-3xl);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin-block: var(--space-2xs) var(--space-sm);
+  }
+  .lab-intro__lead {
+    color: var(--c-muted);
+    font-size: var(--fs-lg);
+    max-width: 52ch;
+  }
+  .lab-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin-top: var(--space-lg);
+  }
+  .lab-nav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding: var(--space-2xs) var(--space-sm);
+    border: var(--border-thin);
+    border-radius: var(--radius-pill);
+    color: var(--c-ink);
+    text-decoration: none;
+    font-weight: var(--fw-medium);
+    transition:
+      border-color 0.2s var(--ease-out),
+      background 0.2s var(--ease-out);
+  }
+  .lab-nav__link:hover {
+    border-color: var(--c-line);
+    background: var(--c-paper-2);
+  }
+  .lab-nav__tag,
+  .lab-block__tag {
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: var(--radius-pill);
+    background: var(--c-line);
+    color: var(--c-on-line);
+    font-family: var(--font-mono);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-sm);
+  }
+
+  .lab-block {
+    border-top: var(--border-thin);
+  }
+  .lab-block__head {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-2xl);
+  }
+  .lab-block__tag {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: var(--fs-base);
+    flex: none;
+  }
+  .lab-block__name {
+    font-size: var(--fs-xl);
+  }
+  .lab-block__note {
+    color: var(--c-muted);
+    max-width: 60ch;
+    margin-top: var(--space-3xs);
+  }
+  .lab-block__demo {
+    padding: var(--space-xl);
+    border: var(--border-thin);
+    border-radius: var(--radius-lg);
+    background: var(--c-paper);
+  }
+  .lab-demo-head {
+    margin-bottom: var(--space-lg);
+  }
+  .lab-demo-title {
+    font-size: var(--fs-2xl);
+    margin-top: var(--space-xs);
+    max-width: 22ch;
+  }
+  @media (max-width: 40rem) {
+    .lab-block__demo {
+      padding: var(--space-md);
+    }
+  }
+</style>

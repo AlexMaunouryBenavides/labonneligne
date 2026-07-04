@@ -1,0 +1,306 @@
+---
+/**
+ * Proposition F — « Baraja » : les 3 plans en éventail façon jeu de cartes.
+ * Estándar (más elegido) au centre, dégainé ; Vitrina et A medida dépassent en
+ * biais derrière. Survoler une carte la ramène devant. La plus ludique/risquée
+ * des six — direction expérimentale à valider côté ton de marque.
+ */
+import { formatCLP } from '../../lib/format';
+import Button from '../Button.astro';
+import { plans } from '../../data/plans';
+---
+
+<div class="baraja" data-price-toggle data-mode="once">
+  <div class="baraja__toggle" role="group" aria-label="Modo de pago">
+    <button type="button" class="baraja__opt is-active" data-mode-btn="once" aria-pressed="true">
+      Compra única
+    </button>
+    <button type="button" class="baraja__opt" data-mode-btn="month" aria-pressed="false">
+      Arriendo / mes
+    </button>
+  </div>
+
+  <ol role="list" class="baraja__deck">
+    {
+      plans.map((plan, i) => (
+        <li
+          class:list={[
+            'baraja__card',
+            plan.highlighted && 'baraja__card--accent',
+            plan.custom && 'baraja__card--dark',
+          ]}
+          style={`--i:${i}`}
+        >
+          {plan.highlighted && <span class="baraja__badge">Más elegido</span>}
+          <h3 class="baraja__name">{plan.name}</h3>
+          <p class="baraja__tagline">{plan.tagline}</p>
+
+          <div class="baraja__price">
+            {plan.custom ? (
+              <span class="baraja__custom">A conversar</span>
+            ) : (
+              <>
+                <span data-price="once" class="baraja__amount">
+                  {formatCLP(plan.priceOnce!)}
+                  <span class="baraja__per">pago único</span>
+                </span>
+                <span data-price="month" class="baraja__amount">
+                  {formatCLP(plan.priceMonth!)}
+                  <span class="baraja__per">/ mes</span>
+                </span>
+              </>
+            )}
+          </div>
+
+          <ul role="list" class="baraja__features">
+            {plan.features.map((f) => (
+              <li>{f}</li>
+            ))}
+          </ul>
+
+          {plan.note && <p class="baraja__note">{plan.note}</p>}
+
+          <Button
+            href="/contacto"
+            variant={plan.highlighted ? 'primary' : 'ghost'}
+            class="baraja__cta"
+          >
+            {plan.custom ? 'Conversemos' : 'Empezar'}
+          </Button>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<script>
+  function initBaraja() {
+    document.querySelectorAll<HTMLElement>('[data-price-toggle]').forEach((root) => {
+      const buttons = root.querySelectorAll<HTMLButtonElement>('[data-mode-btn]');
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const mode = button.dataset.modeBtn ?? 'once';
+          root.setAttribute('data-mode', mode);
+          buttons.forEach((other) => {
+            const active = other === button;
+            other.classList.toggle('is-active', active);
+            other.setAttribute('aria-pressed', String(active));
+          });
+        });
+      });
+    });
+
+    /* Tap-to-front tactile : équivalent du hover pour les écrans tactiles */
+    document.querySelectorAll<HTMLElement>('.baraja__deck').forEach((deck) => {
+      deck.querySelectorAll<HTMLElement>('.baraja__card').forEach((card) => {
+        card.addEventListener('click', (e) => {
+          if ((e.target as HTMLElement).closest('a,button')) return;
+          deck.querySelectorAll('.baraja__card').forEach((c) => c.classList.remove('is-front'));
+          card.classList.add('is-front');
+        });
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initBaraja);
+</script>
+
+<style is:global>
+  .baraja[data-mode='once'] [data-price='month'],
+  .baraja[data-mode='month'] [data-price='once'] {
+    display: none;
+  }
+</style>
+
+<style>
+  .baraja__toggle {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    margin-bottom: var(--space-2xl);
+    background: var(--c-paper-2);
+    border-radius: var(--radius-pill);
+  }
+  .baraja__opt {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--c-muted);
+    transition:
+      background 0.2s var(--ease-out),
+      color 0.2s var(--ease-out);
+  }
+  .baraja__opt.is-active {
+    background: var(--c-ink);
+    color: var(--c-paper);
+  }
+
+  .baraja__deck {
+    position: relative;
+    height: 36rem;
+    margin: 0 auto;
+    max-width: 42rem;
+  }
+  .baraja__card {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: min(19rem, 82vw);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding: var(--space-lg);
+    background: var(--c-paper);
+    border: var(--border-thin);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    cursor: pointer;
+    transition:
+      transform 0.4s var(--ease-out),
+      box-shadow 0.4s var(--ease-out),
+      z-index 0s;
+  }
+  /* Positions de l'éventail : Vitrina et A medida dépassent en biais, Estándar dégainé au centre */
+  .baraja__card[style*='--i:0'] {
+    transform: translate(-68%, 0.75rem) rotate(-7deg);
+    z-index: 1;
+  }
+  .baraja__card[style*='--i:1'] {
+    transform: translate(-50%, 0) rotate(0deg);
+    z-index: 3;
+  }
+  .baraja__card[style*='--i:2'] {
+    transform: translate(-32%, 0.75rem) rotate(7deg);
+    z-index: 2;
+  }
+  .baraja__card:hover,
+  .baraja__card.is-front {
+    transform: translate(-50%, -0.75rem) rotate(0deg) scale(1.03);
+    box-shadow: 0 28px 60px -20px rgba(17, 17, 17, 0.4);
+    z-index: 10;
+  }
+
+  .baraja__card--accent {
+    background: var(--c-accent);
+    color: var(--c-on-line);
+    border-color: transparent;
+  }
+  .baraja__card--accent .baraja__tagline,
+  .baraja__card--accent .baraja__per {
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .baraja__card--dark {
+    background: var(--c-dark);
+    color: var(--c-paper);
+    border-color: transparent;
+  }
+  .baraja__card--dark .baraja__tagline {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .baraja__card--dark .baraja__custom {
+    color: var(--c-line);
+  }
+
+  .baraja__badge {
+    align-self: flex-start;
+    background: var(--c-ink);
+    color: var(--c-paper);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-pill);
+  }
+  .baraja__name {
+    font-size: var(--fs-xl);
+  }
+  .baraja__tagline {
+    color: var(--c-muted);
+    font-size: var(--fs-sm);
+    min-height: 2.6em;
+  }
+  .baraja__price {
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--c-hairline);
+  }
+  .baraja__card--accent .baraja__price,
+  .baraja__card--dark .baraja__price {
+    border-bottom-color: rgba(255, 255, 255, 0.22);
+  }
+  .baraja__amount {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-2xl);
+  }
+  .baraja__per,
+  .baraja__custom {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--c-muted);
+  }
+  .baraja__custom {
+    font-size: var(--fs-xl);
+    font-weight: var(--fw-bold);
+    color: var(--c-orange-ink);
+  }
+  .baraja__features {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    flex: 1;
+  }
+  .baraja__features li {
+    position: relative;
+    padding-left: 1.4rem;
+    font-size: var(--fs-sm);
+  }
+  .baraja__features li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 0.75rem;
+    height: 2px;
+    background: currentColor;
+    opacity: 0.6;
+    border-radius: var(--radius-pill);
+  }
+  .baraja__note {
+    font-size: var(--fs-label);
+    opacity: 0.75;
+  }
+  .baraja__cta {
+    width: 100%;
+    margin-top: var(--space-2xs);
+  }
+
+  /* Mobile : plus d'éventail — pile simple, cartes pleine largeur */
+  @media (max-width: 40rem) {
+    .baraja__deck {
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+      max-width: 24rem;
+    }
+    .baraja__card {
+      position: static;
+      width: 100%;
+      transform: none !important;
+    }
+    .baraja__card:hover,
+    .baraja__card.is-front {
+      box-shadow: var(--shadow-soft);
+    }
+  }
+</style>

@@ -1,0 +1,42 @@
+---
+/**
+ * Barre de progression de lecture — scroll-linked en CSS pur (animation-
+ * timeline), sans JS. Dégrade proprement (barre invisible) sur les
+ * navigateurs qui ne supportent pas encore scroll() ; repli de qualité.
+ */
+---
+
+<div class="reading-progress" aria-hidden="true"></div>
+
+<style>
+  .reading-progress {
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--c-line);
+    transform-origin: left center;
+    transform: scaleX(0);
+    z-index: 40;
+    pointer-events: none;
+    animation: reading-progress-x linear both;
+    animation-timeline: scroll();
+    animation-range: 0 100%;
+  }
+
+  @keyframes reading-progress-x {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reading-progress {
+      display: none;
+    }
+  }
+</style>

@@ -28,21 +28,27 @@ const { showToggle = true } = Astro.props;
 </div>
 
 <script>
-  document.querySelectorAll<HTMLElement>('.plans').forEach((root) => {
-    const grid = root.querySelector<HTMLElement>('.plans__grid');
-    const buttons = root.querySelectorAll<HTMLButtonElement>('[data-mode-btn]');
-    buttons.forEach((button) => {
-      button.addEventListener('click', () => {
-        const mode = button.dataset.modeBtn ?? 'once';
-        grid?.setAttribute('data-mode', mode);
-        buttons.forEach((other) => {
-          const active = other === button;
-          other.classList.toggle('is-active', active);
-          other.setAttribute('aria-pressed', String(active));
+  // astro:page-load : ce composant réapparaît sur plusieurs pages, chacune
+  // remplaçant <main> à la navigation — ré-attacher à chaque fois.
+  function initPlansToggle() {
+    document.querySelectorAll<HTMLElement>('.plans').forEach((root) => {
+      const grid = root.querySelector<HTMLElement>('.plans__grid');
+      const buttons = root.querySelectorAll<HTMLButtonElement>('[data-mode-btn]');
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const mode = button.dataset.modeBtn ?? 'once';
+          grid?.setAttribute('data-mode', mode);
+          buttons.forEach((other) => {
+            const active = other === button;
+            other.classList.toggle('is-active', active);
+            other.setAttribute('aria-pressed', String(active));
+          });
         });
       });
     });
-  });
+  }
+
+  document.addEventListener('astro:page-load', initPlansToggle);
 </script>
 
 <!-- Bascule des prix selon le mode : règle globale (franchit le scoping). -->
@@ -56,24 +62,26 @@ const { showToggle = true } = Astro.props;
 <style>
   .plans__toggle {
     display: inline-flex;
-    gap: 0.25rem;
-    padding: 0.3rem;
+    border: var(--border-hard);
     margin-bottom: var(--space-lg);
-    background: var(--c-paper-2);
-    border-radius: var(--radius-pill);
   }
   .plans__opt {
     border: 0;
-    background: transparent;
+    background: var(--c-paper);
     cursor: pointer;
-    padding: 0.55rem 1.1rem;
-    border-radius: var(--radius-pill);
+    padding: 0.7rem 1.2rem;
+    font-family: var(--font-mono);
     font-size: var(--fs-sm);
-    font-weight: var(--fw-semibold);
+    font-weight: var(--fw-medium);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
     color: var(--c-muted);
     transition:
-      background 0.2s var(--ease-out),
-      color 0.2s var(--ease-out);
+      background 0.15s var(--ease-out),
+      color 0.15s var(--ease-out);
+  }
+  .plans__opt + .plans__opt {
+    border-left: var(--border-hard);
   }
   .plans__opt.is-active {
     background: var(--c-ink);

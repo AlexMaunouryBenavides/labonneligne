@@ -67,7 +67,13 @@ const waHref = whatsappUrl();
         <!-- Honeypot anti-spam : hors écran, invisible et ignoré au clavier -->
         <div class="hp" aria-hidden="true">
           <label for={HONEYPOT_FIELD}>No rellenes este campo</label>
-          <input id={HONEYPOT_FIELD} name={HONEYPOT_FIELD} type="text" tabindex="-1" autocomplete="off" />
+          <input
+            id={HONEYPOT_FIELD}
+            name={HONEYPOT_FIELD}
+            type="text"
+            tabindex="-1"
+            autocomplete="off"
+          />
         </div>
 
         <button class="cform__submit" type="submit">Enviar mensaje</button>
@@ -101,8 +107,11 @@ const waHref = whatsappUrl();
 <script>
   import { CONTACT_FIELDS, validateField, type ContactField } from '../lib/contact-form';
 
-  const form = document.querySelector<HTMLFormElement>('#contact-form');
-  if (form) {
+  // astro:page-load : <main> est remplacé à la navigation (transitions
+  // client-side) — ré-initialiser le formulaire sur le DOM frais à chaque fois.
+  function initContactForm() {
+    const form = document.querySelector<HTMLFormElement>('#contact-form');
+    if (!form) return;
     const submit = form.querySelector<HTMLButtonElement>('.cform__submit')!;
     const status = form.querySelector<HTMLParagraphElement>('.cform__status')!;
     const submitLabel = submit.textContent ?? 'Enviar mensaje';
@@ -194,6 +203,8 @@ const waHref = whatsappUrl();
       }
     });
   }
+
+  document.addEventListener('astro:page-load', initContactForm);
 </script>
 
 <style>

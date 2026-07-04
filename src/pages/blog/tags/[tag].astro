@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import PostList from '../../../components/PostList.astro';
+import { getPublishedPosts, collectTags, slugify } from '../../../lib/blog';
+
+// Une page par tag existant ; le filtrage est fait au build (site statique).
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return collectTags(posts).map((tag) => ({
+    params: { tag: tag.slug },
+    props: {
+      tag: tag.name,
+      posts: posts.filter((post) => post.data.tags?.some((t) => slugify(t) === tag.slug)),
+    },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`Blog · #${tag}`}
+  description={`Artículos con la etiqueta ${tag}: guías de diseño web y SEO para pymes.`}
+>
+  <section class="section container">
+    <SectionHeading
+      as="h1"
+      eyebrow="Etiqueta"
+      title={`#${tag}`}
+      intro={`Todos nuestros artículos con la etiqueta ${tag}.`}
+    />
+    <PostList posts={posts} />
+    <p class="back"><a href="/blog">← Todos los artículos</a></p>
+  </section>
+</BaseLayout>
+
+<style>
+  .back {
+    margin-top: var(--space-xl);
+  }
+</style>

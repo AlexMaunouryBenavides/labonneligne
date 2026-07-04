@@ -1,142 +1,153 @@
 ---
 /**
- * Section « Qué obtienes » — bento asymétrique. Grande tuile sombre avec photo
- * duotone (bénéfice phare), tuile orange pleine, tuile papier : les 3 surfaces
- * de marque en équilibre. Bénéfices PARALLÈLES → pas de numérotation.
- * Requiert le filtre `#duotone-orange` (inclure <Duotone /> dans la page).
- * À poser sur une section à fond clair (pas .section--alt).
+ * Section « Qué obtienes » — grille bento façon spec technique : cartes à
+ * bordure/ombre dures, numérotées, une en aplat sombre, une en aplat orange.
+ * Bar-chart décoratif (pas de données réelles, pur motif visuel comme dans le
+ * template source). Zéro photo — cohérent avec le système « sans image ».
  */
-import { Image } from 'astro:assets';
-import TrazoIcon from './TrazoIcon.astro';
 import { benefits } from '../data/benefits';
-import homeOffice from '../assets/home-office.jpg';
 
-const [lead, second, third] = benefits;
+const [first, second, third] = benefits;
+const bars = [45, 70, 55, 90, 65, 100, 80, 95];
 ---
 
 <div class="bento">
-  <article class="bento__tile bento__lead">
-    <Image src={homeOffice} alt="" width={900} class="bento__img" />
+  <article class="bento__card bento__card--wide reveal">
+    <div class="bento__num">LBL—01</div>
     <div class="bento__body">
-      <TrazoIcon name={lead!.icon} />
-      <h3 class="bento__name">{lead!.title}</h3>
-      <p class="bento__text">{lead!.text}</p>
+      <h3 class="bento__title">{first!.title}</h3>
+      <p class="bento__text">{first!.text}</p>
+    </div>
+    <div class="bento__bars" aria-hidden="true">
+      {bars.map((h) => <span style={`height:${h}%`} />)}
     </div>
   </article>
 
-  <article class="bento__tile bento__accent">
-    <TrazoIcon name={second!.icon} />
-    <h3 class="bento__name">{second!.title}</h3>
-    <p class="bento__text">{second!.text}</p>
+  <article class="bento__card bento__card--narrow bento__card--dark reveal">
+    <div class="bento__num">LBL—02</div>
+    <h3 class="bento__title">{second!.title}</h3>
+    <div class="bento__stat">SEO</div>
   </article>
 
-  <article class="bento__tile bento__paper">
-    <TrazoIcon name={third!.icon} />
-    <h3 class="bento__name">{third!.title}</h3>
+  <article class="bento__card bento__card--mid bento__card--safety reveal">
+    <div class="bento__num">LBL—03</div>
+    <h3 class="bento__title">{third!.title}</h3>
     <p class="bento__text">{third!.text}</p>
+  </article>
+
+  <article class="bento__card bento__card--mid reveal">
+    <div class="bento__num">LBL—04</div>
+    <h3 class="bento__title">100 % chileno</h3>
+    <p class="bento__text">Trato local, sin intermediarios. Técnica francesa, presencia chilena.</p>
+    <div class="bento__stat">100<span class="accent" style="font-size:0.4em">%</span></div>
   </article>
 </div>
 
 <style>
   .bento {
     display: grid;
-    grid-template-columns: 1.15fr 1fr;
-    grid-template-rows: 1fr 1fr;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
     gap: var(--space-md);
-    min-height: 32rem;
   }
-  .bento__tile {
-    border-radius: var(--radius-lg);
-    padding: clamp(1.5rem, 3vw, 2.25rem);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2xs);
+  .bento__card {
+    border: var(--border-hard);
+    box-shadow: var(--shadow-hard);
+    background: var(--c-paper);
+    padding: clamp(1.25rem, 2vw, 2rem);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: var(--space-sm);
+    transition: var(--transition-snap);
   }
-  .bento__name {
-    font-size: var(--fs-xl);
-    margin-top: var(--space-2xs);
+  .bento__card:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: var(--shadow-hard-hover);
+  }
+  .bento__card--wide {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  .bento__card--narrow {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+  .bento__card--mid {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+  .bento__card--dark {
+    background: var(--c-dark);
+    color: var(--c-paper);
+    box-shadow: var(--shadow-hard-safety);
+  }
+  .bento__card--dark:hover {
+    box-shadow: var(--shadow-hard-hover-safety);
+  }
+  .bento__card--safety {
+    background: var(--c-line);
+    color: var(--c-on-line);
+  }
+
+  .bento__num {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    opacity: 0.35;
+  }
+  .bento__title {
+    font-size: var(--fs-lg);
+    line-height: 0.95;
   }
   .bento__text {
-    font-size: var(--fs-base);
-    max-width: 34ch;
+    font-size: var(--fs-sm);
+    line-height: 1.7;
+    opacity: 0.65;
+  }
+  .bento__stat {
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: clamp(2rem, 4vw, 3rem);
+    letter-spacing: var(--tracking-tight);
+    align-self: end;
   }
 
-  /* Tuile phare — sombre + photo duotone, texte en bas */
-  .bento__lead {
-    grid-row: 1 / 3;
-    position: relative;
-    overflow: hidden;
-    background: var(--c-dark);
-    justify-content: flex-end;
-    color: var(--c-paper);
-    min-height: 22rem;
-  }
-  .bento__img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: url(#duotone-orange);
-    opacity: 0.9;
-  }
-  .bento__lead .bento__body {
-    position: relative;
-    z-index: 1;
+  .bento__bars {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-2xs);
-    padding: var(--space-lg);
-    margin: calc(-1 * clamp(1.5rem, 3vw, 2.25rem));
-    margin-top: 0;
-    background: linear-gradient(to top, rgba(17, 17, 17, 0.92) 30%, rgba(17, 17, 17, 0) 100%);
+    align-items: flex-end;
+    gap: 4px;
+    height: 3.5rem;
   }
-  .bento__lead .bento__text {
-    color: rgba(255, 255, 255, 0.82);
-  }
-  .bento__lead :global(.trazo-icon) {
-    color: var(--c-paper);
+  .bento__bars span {
+    flex: 1;
+    background: var(--c-line);
+    border: 2px solid var(--c-ink);
+    min-height: 4px;
   }
 
-  /* Tuile accent — aplat orange */
-  .bento__accent {
-    background: var(--c-accent);
-    color: var(--c-on-line);
-  }
-  .bento__accent .bento__text {
-    color: rgba(255, 255, 255, 0.9);
-  }
-  .bento__accent :global(.trazo-icon) {
-    color: var(--c-on-line);
-  }
-
-  /* Tuile calme — papier + filet */
-  .bento__paper {
-    background: var(--c-paper);
-    border: var(--border-thin);
-    color: var(--c-ink);
-  }
-  .bento__paper .bento__text {
-    color: var(--c-muted);
-  }
-
-  /* Tablette : la phare passe en haut pleine largeur, les 2 autres dessous */
-  @media (max-width: 52rem) {
+  @media (max-width: 60rem) {
     .bento {
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: auto auto;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: auto;
     }
-    .bento__lead {
-      grid-row: auto;
-      grid-column: 1 / 3;
+    .bento__card--wide,
+    .bento__card--mid {
+      grid-column: span 2;
+    }
+    .bento__card--narrow {
+      grid-column: span 1;
     }
   }
   @media (max-width: 34rem) {
     .bento {
       grid-template-columns: 1fr;
     }
-    .bento__lead {
-      grid-column: auto;
+    .bento__card--wide,
+    .bento__card--mid,
+    .bento__card--narrow {
+      grid-column: span 1;
     }
   }
 </style>

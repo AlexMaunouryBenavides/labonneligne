@@ -55,27 +55,43 @@ const monthLabel = plan.priceMonth != null ? formatCLP(plan.priceMonth) : null;
     gap: var(--space-xs);
     padding: var(--space-lg);
     background: var(--c-paper);
-    border: var(--border-thin);
-    border-radius: var(--radius-lg);
+    border: var(--border-hard);
+    box-shadow: var(--shadow-hard);
     position: relative;
+    transition: var(--transition-snap);
+  }
+  .offer:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: var(--shadow-hard-hover);
   }
   .offer--featured {
-    border-color: var(--c-line);
-    box-shadow: var(--shadow-soft);
+    background: var(--c-line);
+    color: var(--c-on-line);
+    box-shadow: var(--shadow-hard-safety);
+    --c-orange-ink: var(--c-ink); /* évite orange-sur-orange si custom+featured */
+  }
+  .offer--featured:hover {
+    box-shadow: var(--shadow-hard-hover-safety);
+  }
+  .offer--featured .offer__tagline,
+  .offer--featured .offer__per {
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .offer--featured .offer__price {
+    border-bottom-color: rgba(255, 255, 255, 0.3);
   }
   .offer__badge {
     position: absolute;
-    top: calc(-0.7rem);
+    top: -0.75rem;
     left: var(--space-lg);
-    background: var(--c-line);
-    color: var(--c-on-line);
+    background: var(--c-ink);
+    color: var(--c-paper);
     font-family: var(--font-mono);
     font-size: var(--fs-label);
     font-weight: var(--fw-bold);
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     padding: 0.25rem 0.6rem;
-    border-radius: var(--radius-pill);
   }
   .offer__name {
     font-size: var(--fs-xl);
@@ -130,7 +146,9 @@ const monthLabel = plan.priceMonth != null ? formatCLP(plan.priceMonth) : null;
     width: 0.8rem;
     height: 2px;
     background: var(--c-line);
-    border-radius: var(--radius-pill);
+  }
+  .offer--featured .offer__features li::before {
+    background: var(--c-ink);
   }
   .offer__note {
     font-size: var(--fs-label);

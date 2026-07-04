@@ -11,9 +11,11 @@ import { glob } from 'astro/loaders';
  *   title: 'Titre de l’article'
  *   description: 'Résumé pour le SEO et la liste.'
  *   date: 2026-01-15
+ *   updated: 2026-02-01       # optionnel (affiche « actualizado el »)
  *   category: 'seo'
- *   image: './portada.jpg'   # optionnel
- *   draft: false             # optionnel (true = non publié)
+ *   tags: ['seo', 'google']   # optionnel — active les pages /blog/tags/*
+ *   image: './portada.jpg'    # optionnel
+ *   draft: false              # optionnel (true = non publié)
  *   ---
  */
 const blog = defineCollection({
@@ -23,7 +25,9 @@ const blog = defineCollection({
       title: z.string(),
       description: z.string(),
       date: z.coerce.date(),
+      updated: z.coerce.date().optional(),
       category: z.string(),
+      tags: z.array(z.string()).optional(),
       image: image().optional(),
       draft: z.boolean().default(false),
     }),

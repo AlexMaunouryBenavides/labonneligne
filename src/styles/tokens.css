@@ -1,55 +1,64 @@
 /**
  * Design tokens — La Bonne Ligne
- * Base épurée noir / blanc, orange en accent (cf. docs/agence-web-decisions.md §0).
- * Deux oranges distincts pour respecter ux.r11 (contraste AA) :
- *   --c-line  = orange vif, GRAPHIQUE uniquement (traits, surfaces, monogramme)
- *   --c-orange-ink = orange assombri, VALIDÉ AA pour le texte/liens sur blanc
+ * Système « industrial / brutaliste » : noir & blanc stricts, orange sécurité
+ * en accent, bordures dures 4px, ombres portées dures 8px, aucun arrondi.
+ * Repris de la direction Axis Industrial (docs/templatemo_619_axis_industrial),
+ * adapté au contenu réel de l'agence (es-CL).
+ *
+ * Note accessibilité : --c-line (orange vif) est utilisé pour le GRAPHIQUE
+ * (bordures, aplats, badges) et les libellés courts (eyebrows, tags) — son
+ * contraste sur blanc (~3.5:1) ne couvre pas l'AA texte courant ; c'est un
+ * choix de marque assumé (cf. historique du projet). Le corps de texte reste
+ * toujours en --c-ink (noir, contraste maximal).
  */
 :root {
   /* — Couleurs — */
-  --c-ink: #111111; /* texte principal, display */
-  --c-ink-soft: #2b2b2b;
+  --c-ink: #000000; /* texte principal, bordures, display */
+  --c-ink-soft: #1a1a1a;
   --c-muted: #595959; /* texte secondaire (AA sur blanc) */
   --c-paper: #ffffff; /* fond principal */
-  --c-paper-2: #f4f4f2; /* sous-surfaces neutres (contrôles, placeholders) */
-  --c-accent: #f4621e; /* surface accent orange — fond des sections « alt » */
-  --c-dark: #161616; /* surface sombre — footer, carte contact */
-  --c-hairline: #e7e6e2; /* filets / bordures discrètes */
-  --c-line: #f4621e; /* ORANGE vif — graphique seulement */
-  --c-line-deep: #d9521a;
-  /* ORANGE texte/liens — vif et assumé (contrainte AA levée sur choix produit) */
-  --c-orange-ink: #f4621e;
-  --c-on-line: #ffffff; /* texte sur aplat orange vif */
-  --c-danger: #b3261e; /* erreurs de formulaire — AA sur blanc, distinct de l'orange */
+  --c-paper-2: #f5f5f0; /* surface neutre (sections alternées, cartes) */
+  --c-accent: #ff3e00; /* surface accent orange plein */
+  --c-dark: #0a0a0a; /* surface sombre — header, footer, cartes dark */
+  --c-hairline: rgba(0, 0, 0, 0.12); /* filets discrets sur fond clair */
+  --c-hairline-on-dark: rgba(255, 255, 255, 0.12); /* filets discrets sur fond sombre */
+  --c-line: #ff3e00; /* orange sécurité — graphique + labels courts */
+  --c-line-deep: #d93500;
+  --c-orange-ink: #ff3e00; /* orange texte/liens — même valeur, choix assumé */
+  --c-on-line: #ffffff; /* texte sur aplat orange / sombre */
+  --c-danger: #b3261e; /* erreurs de formulaire — AA sur blanc */
   --c-ok: #1a7f47; /* confirmation d'envoi — AA sur blanc */
+  --c-status: #00ff66; /* pastille « en línea » du header (couleur système, hors marque) */
 
   /* — Typographies — */
-  /* Titres + corps : Geist. Anton (doublure Manuka) réservé au hero. Mono : Geist Mono. */
-  --font-display: 'Geist Variable', 'Geist', system-ui, sans-serif;
-  --font-hero: 'Anton', 'Bricolage Grotesque', system-ui, sans-serif;
-  --font-body: 'Geist Variable', 'Geist', system-ui, sans-serif;
-  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, monospace;
+  /* Titres : Space Grotesk (gras, capitales, interlettrage serré). Corps + labels : JetBrains Mono. */
+  --font-display: 'Space Grotesk Variable', 'Space Grotesk', sans-serif;
+  --font-hero: var(--font-display);
+  --font-body: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+  --font-mono: var(--font-body);
 
-  /* — Échelle typographique fluide (modular ~1.25) — */
-  --fs-label: 0.78rem;
-  --fs-sm: 0.9rem;
-  --fs-base: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
-  --fs-lg: clamp(1.2rem, 1.1rem + 0.5vw, 1.4rem);
-  --fs-xl: clamp(1.5rem, 1.3rem + 1vw, 2rem);
-  --fs-2xl: clamp(2rem, 1.6rem + 2vw, 3rem);
-  --fs-3xl: clamp(2.6rem, 1.9rem + 3.4vw, 4.5rem);
-  --fs-hero: clamp(3rem, 2rem + 5vw, 6.5rem);
+  /* — Échelle typographique fluide (registre XXL, façon spec technique) — */
+  --fs-label: 0.68rem;
+  --fs-sm: 0.85rem;
+  --fs-base: clamp(0.92rem, 0.88rem + 0.2vw, 1rem);
+  --fs-lg: clamp(1.1rem, 1rem + 0.5vw, 1.3rem);
+  --fs-xl: clamp(1.3rem, 1.1rem + 1vw, 1.75rem);
+  --fs-2xl: clamp(1.8rem, 1.4rem + 2vw, 2.75rem);
+  --fs-3xl: clamp(2.3rem, 1.6rem + 3.4vw, 4rem);
+  --fs-hero: clamp(2.75rem, 1.6rem + 7vw, 6.75rem);
+  --fs-stat: clamp(2.2rem, 1.6rem + 3vw, 3.75rem);
+  --fs-ticker: clamp(1.3rem, 1rem + 2vw, 2.25rem);
 
   /* — Graisses / interlettrage — */
   --fw-regular: 400;
   --fw-medium: 500;
   --fw-semibold: 600;
   --fw-bold: 700;
-  --tracking-label: 0.18em; /* eyebrows / labels mono en capitales */
-  --tracking-tight: -0.02em; /* gros titres display */
-  --leading-tight: 1.04;
-  --leading-snug: 1.2;
-  --leading-body: 1.6;
+  --tracking-label: 0.2em; /* eyebrows / labels mono en capitales */
+  --tracking-tight: -0.03em; /* gros titres display */
+  --leading-tight: 0.92; /* titres — serré, façon affiche */
+  --leading-snug: 1.15;
+  --leading-body: 1.7;
 
   /* — Espacements (échelle 4px) — */
   --space-3xs: 0.25rem;
@@ -63,18 +72,25 @@
   --space-3xl: 9rem;
 
   /* — Layout — */
-  --container-max: 76rem; /* ~1216px */
+  --container-max: 82rem;
   --container-pad: clamp(1.25rem, 5vw, 3rem);
-  --section-y: clamp(4rem, 8vw, 8rem);
+  --section-y: clamp(3.5rem, 8vw, 7rem);
 
-  /* — Divers — */
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
-  --radius-pill: 999px;
+  /* — Bordures & ombres dures (signature du système) — */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-pill: 0px;
+  --border-hard: 3px solid var(--c-ink);
   --border-thin: 1px solid var(--c-hairline);
-  --shadow-soft: 0 14px 40px -18px rgba(17, 17, 17, 0.28);
+  --shadow-soft: 6px 6px 0 var(--c-ink); /* alias legacy — même recette que shadow-hard */
+  --shadow-hard: 6px 6px 0 var(--c-ink);
+  --shadow-hard-safety: 6px 6px 0 var(--c-line);
+  --shadow-hard-hover: 10px 10px 0 var(--c-ink);
+  --shadow-hard-hover-safety: 10px 10px 0 var(--c-line);
   --ring: 3px solid var(--c-line);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --header-h: 4.5rem;
+  /* Survol « dur » adouci : rapide mais pas instantané (moins brutal qu'un snap à 0s). */
+  --transition-snap: transform 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
+  --header-h: 3.75rem;
 }

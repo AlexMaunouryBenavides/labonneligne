@@ -1,19 +1,20 @@
 ---
 /**
- * Rangée projet façon éditorial (inspiration bykins.com) : méta à gauche,
- * visuel large à droite. Visuel placeholder tant qu'il n'y a pas de vraies
- * images (dégradé + monogramme + « la ligne »).
+ * Rangée projet : méta à gauche, visuel placeholder à droite (bordure/ombre
+ * dures, tag numéroté + initiale géante) tant qu'il n'y a pas de vraies
+ * captures. Zéro image — cohérent avec le système « sans photo ».
  */
 import type { Project } from '../data/projects';
 
 interface Props {
   project: Project;
+  index?: number;
 }
-const { project } = Astro.props;
+const { project, index = 0 } = Astro.props;
 const initial = project.name.charAt(0);
 ---
 
-<article class="prow">
+<article class="prow reveal">
   <div class="prow__meta">
     <p class="prow__sector">{project.sector}</p>
     <h3 class="prow__name">{project.name}</h3>
@@ -28,11 +29,8 @@ const initial = project.name.charAt(0);
   </div>
 
   <div class="prow__media" aria-hidden="true">
+    <span class="prow__tag">P—{String(index + 1).padStart(2, '0')}</span>
     <span class="prow__initial">{initial}</span>
-    <svg class="prow__line" viewBox="0 0 160 90" fill="none" stroke-width="4" stroke-linecap="round">
-      <path d="M20 74 L20 30 L88 30" stroke="var(--c-ink)" opacity="0.22"></path>
-      <path d="M140 16 L140 60 L88 60" stroke="var(--c-line)"></path>
-    </svg>
   </div>
 </article>
 
@@ -41,14 +39,19 @@ const initial = project.name.charAt(0);
     display: grid;
     grid-template-columns: 0.72fr 1.28fr;
     gap: var(--space-xl);
-    align-items: center;
+    align-items: stretch;
     padding-block: var(--space-xl);
-    border-top: var(--border-thin);
+    border-top: var(--border-hard);
   }
   .prow:last-child {
-    border-bottom: var(--border-thin);
+    border-bottom: var(--border-hard);
   }
 
+  .prow__meta {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
   .prow__sector {
     font-family: var(--font-mono);
     font-size: var(--fs-label);
@@ -80,31 +83,32 @@ const initial = project.name.charAt(0);
   .prow__media {
     position: relative;
     aspect-ratio: 16 / 10;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    border: var(--border-thin);
-    background:
-      radial-gradient(130% 140% at 85% 0%, color-mix(in srgb, var(--c-accent) 14%, transparent), transparent),
-      var(--c-paper);
+    border: var(--border-hard);
+    background: var(--c-paper-2);
     display: grid;
     place-items: center;
-    transition: box-shadow 0.25s var(--ease-out);
+    transition: var(--transition-snap);
   }
   .prow:hover .prow__media {
-    box-shadow: var(--shadow-soft);
+    box-shadow: var(--shadow-hard);
+    transform: translate(-4px, -4px);
+  }
+  .prow__tag {
+    position: absolute;
+    top: var(--space-sm);
+    left: var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--tracking-label);
+    color: var(--c-orange-ink);
   }
   .prow__initial {
     font-family: var(--font-display);
     font-size: clamp(4rem, 12vw, 8rem);
     color: var(--c-ink);
-    opacity: 0.1;
+    opacity: 0.12;
     line-height: 1;
-  }
-  .prow__line {
-    position: absolute;
-    width: 34%;
-    height: auto;
-    overflow: visible;
   }
 
   /* Mobile : méta au-dessus, visuel dessous, pleine largeur */

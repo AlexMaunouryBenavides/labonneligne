@@ -48,6 +48,7 @@ h4 {
   font-weight: var(--fw-bold);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-tight);
+  text-transform: uppercase;
   text-wrap: balance;
 }
 
@@ -126,7 +127,7 @@ ol[role='list'] {
   --c-hairline: rgba(255, 255, 255, 0.16); /* filets discrets sur sombre */
 }
 
-/* Eyebrow / label mono en capitales — porte l'identité "technique/dev" */
+/* Eyebrow / label mono en capitales, préfixé « // » — porte l'identité technique */
 .eyebrow {
   font-family: var(--font-mono);
   font-size: var(--fs-label);
@@ -135,14 +136,95 @@ ol[role='list'] {
   text-transform: uppercase;
   color: var(--c-orange-ink);
 }
+.eyebrow::before {
+  content: '// ';
+}
 
-/* La "ligne" en séparateur — motif signature */
+/* Filet plein — séparateur signature */
 .rule-line {
   height: 3px;
   border: 0;
   background: var(--c-line);
   width: clamp(2.5rem, 6vw, 4.5rem);
-  border-radius: var(--radius-pill);
+}
+
+/* — Fond quadrillé (hero, sections techniques) — */
+.grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--c-hairline) 1px, transparent 1px),
+    linear-gradient(90deg, var(--c-hairline) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+/* — Défilement révélé au scroll (IntersectionObserver, cf. src/scripts/reveal.ts) — */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* — Bandeau défilant (ticker) — */
+.ticker {
+  border-block: var(--border-hard);
+  background: var(--c-ink);
+  color: var(--c-paper);
+  overflow: hidden;
+  padding-block: var(--space-sm);
+}
+.ticker + .ticker {
+  border-top: 0;
+}
+.ticker--safety {
+  background: var(--c-line);
+  color: var(--c-on-line);
+}
+.ticker__track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll 22s linear infinite;
+}
+.ticker--reverse .ticker__track {
+  animation-direction: reverse;
+  animation-duration: 30s;
+}
+.ticker__item {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-ticker);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tight);
+  white-space: nowrap;
+  padding-inline: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.ticker__item::after {
+  content: '';
+  width: 0.7rem;
+  height: 0.7rem;
+  background: var(--c-line);
+  flex-shrink: 0;
+}
+.ticker--safety .ticker__item::after {
+  background: var(--c-paper);
+}
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .visually-hidden {
@@ -182,5 +264,9 @@ ol[role='list'] {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
   }
 }

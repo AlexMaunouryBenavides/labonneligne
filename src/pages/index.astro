@@ -5,88 +5,95 @@ import SectionHeading from '../components/SectionHeading.astro';
 import PlansGrid from '../components/PlansGrid.astro';
 import ProjectList from '../components/ProjectList.astro';
 import Proceso from '../components/Proceso.astro';
-import Duotone from '../components/Duotone.astro';
 import Queo from '../components/Queo.astro';
 import Cta from '../components/Cta.astro';
 import LocalBusinessSchema from '../components/LocalBusinessSchema.astro';
-import { Image } from 'astro:assets';
-import heroImg from '../assets/hero-img.jpg';
 import { projects } from '../data/projects';
 import { whatsappUrl } from '../lib/contact';
 
 const waHref = whatsappUrl();
 const featuredProjects = projects.slice(0, 3);
+
+const tickerA = [
+  'Diseño Web',
+  'SEO Local',
+  'Hosting Incluido',
+  'Mantención',
+  'Planes en CLP',
+  'Soporte en Español',
+  'Sitios Rápidos',
+];
+const tickerB = ['La Bonne Ligne', 'Presencia 100% Chilena', 'Técnica Francesa', 'Precios Claros'];
 ---
 
-<BaseLayout description="Diseño web para pymes en Chile: sitios rápidos, claros y con SEO local. Tecnología francesa, presencia 100 % chilena.">
+<BaseLayout
+  description="Diseño web para pymes en Chile: sitios rápidos, claros y con SEO local. Tecnología francesa, presencia 100 % chilena."
+>
   <LocalBusinessSchema slot="head" />
 
-  <!-- HERO — contenu à gauche, image à droite. Mot-clé souligné par « la ligne ». -->
+  <!-- HERO — fond quadrillé, typo XXL, aucune photo. -->
   <section class="hero">
+    <div class="grid-bg" aria-hidden="true"></div>
     <div class="container hero__inner">
-      <div class="hero__copy">
-        <p class="eyebrow">Diseño web · pymes · es-CL</p>
-        <h1 class="hero__title">
-          Creamos la <span class="hero__mark"
-            >presencia web<svg
-              class="hero__underline"
-              viewBox="0 0 240 16"
-              preserveAspectRatio="none"
-              fill="none"
-              stroke-width="7"
-              stroke-linecap="round"
-              aria-hidden="true"
-              ><path
-                class="js-draw"
-                d="M4 9 C64 5 120 5 176 8 S226 10 236 8"
-                stroke="var(--c-line)"></path></svg
-          ></span> que tu empresa merece.
-        </h1>
-        <p class="hero__lead">
+      <p class="hero__label reveal">Diseño web · pymes · es-CL</p>
+      <h1 class="hero__title">
+        <span class="hero__line">Presencia web</span>
+        <span class="hero__line hero__line--indent">que convierte<span class="accent">.</span></span
+        >
+      </h1>
+
+      <div class="hero__bottom">
+        <p class="hero__desc reveal">
           Sitios rápidos, claros y hechos para que tus clientes te encuentren. Tecnología francesa,
-          presencia 100 % chilena.
+          presencia 100&nbsp;% chilena.
         </p>
-        <div class="hero__actions">
-          <Button href="/planes">Ver planes</Button>
-          <Button href={waHref} variant="ghost">Hablar por WhatsApp</Button>
-        </div>
-        <ul role="list" class="hero__stats">
-          <li class="hero__stat">
-            <span class="hero__stat-num">100 %</span>
-            <span class="hero__stat-label">Presencia chilena</span>
+        <ul role="list" class="hero__stats reveal">
+          <li>
+            <div class="hero__stat-num">100<span class="accent">%</span></div>
+            <div class="hero__stat-label">Presencia chilena</div>
           </li>
-          <li class="hero__stat">
-            <span class="hero__stat-num">FR · CL</span>
-            <span class="hero__stat-label">Técnica francesa, trato local</span>
+          <li>
+            <div class="hero__stat-num">3</div>
+            <div class="hero__stat-label">Planes claros en CLP</div>
+          </li>
+          <li>
+            <div class="hero__stat-num">FR<span class="accent">·</span>CL</div>
+            <div class="hero__stat-label">Técnica francesa, trato local</div>
           </li>
         </ul>
       </div>
 
-      <div class="hero__media">
-        <Image
-          class="hero__img"
-          src={heroImg}
-          alt="Equipo trabajando frente al skyline de Santiago y la cordillera al atardecer"
-          widths={[480, 720, 1024]}
-          sizes="(max-width: 52rem) 92vw, 48vw"
-          loading="eager"
-          fetchpriority="high"
-        />
+      <div class="hero__actions reveal">
+        <Button href="/planes">Ver planes</Button>
+        <Button href={waHref} variant="ghost">Hablar por WhatsApp</Button>
       </div>
+
+      <span class="hero__scroll-cue" aria-hidden="true">Desplázate</span>
     </div>
   </section>
 
+  <!-- TICKER — mots-clés de service, deux bandes contraires. -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker__track">
+      {[...tickerA, ...tickerA].map((item) => <span class="ticker__item">{item}</span>)}
+    </div>
+  </div>
+  <div class="ticker ticker--safety ticker--reverse" aria-hidden="true">
+    <div class="ticker__track">
+      {[...tickerB, ...tickerB, ...tickerB].map((item) => <span class="ticker__item">{item}</span>)}
+    </div>
+  </div>
+
   <!-- QUÉ obtienes — bénéfices : bento (3 surfaces de marque) -->
-  <section class="section">
+  <section class="section section-divide">
     <div class="container">
       <SectionHeading eyebrow="Qué obtienes" title="Una presencia web que trabaja por ti" />
-      <Duotone />
       <Queo />
     </div>
   </section>
 
   <!-- PLANES — aperçu -->
-  <section class="section container">
+  <section class="section container section-divide">
     <SectionHeading
       eyebrow="Planes"
       title="Precios claros, en pesos chilenos"
@@ -99,7 +106,7 @@ const featuredProjects = projects.slice(0, 3);
   </section>
 
   <!-- CÓMO — processus -->
-  <section class="section">
+  <section class="section section-divide">
     <div class="container">
       <SectionHeading eyebrow="Cómo trabajamos" title="Simple, de principio a fin" />
       <Proceso />
@@ -107,7 +114,7 @@ const featuredProjects = projects.slice(0, 3);
   </section>
 
   <!-- PROYECTOS — aperçu -->
-  <section class="section container">
+  <section class="section container section-divide">
     <SectionHeading eyebrow="Proyectos" title="Sitios que dan resultados" />
     <ProjectList projects={featuredProjects} />
     <p class="more-link">
@@ -133,81 +140,103 @@ const featuredProjects = projects.slice(0, 3);
 
 <style>
   .hero {
-    padding-block: clamp(3rem, 8vw, 7rem);
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(3.5rem, 9vw, 7rem) clamp(2.5rem, 6vw, 4rem);
+    border-bottom: var(--border-hard);
   }
   .hero__inner {
-    display: grid;
-    grid-template-columns: 1fr 0.95fr;
-    align-items: stretch;
-    gap: var(--space-2xl);
-  }
-  .hero__title {
-    font-family: var(--font-hero);
-    font-size: clamp(2.6rem, 4.6vw, 4.5rem);
-    line-height: 1.18;
-    margin-top: var(--space-sm);
-    max-width: 13ch;
-  }
-  /* Mot-clé souligné par « la ligne » (tracée au chargement) */
-  .hero__mark {
     position: relative;
-    white-space: nowrap;
+    z-index: 1;
   }
-  .hero__underline {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0.04em;
-    width: 100%;
-    height: 0.16em;
-    overflow: visible;
-  }
-  .hero__lead {
-    margin-top: var(--space-md);
-    max-width: 44ch;
-    font-size: var(--fs-lg);
-    color: var(--c-muted);
-  }
-  .hero__actions {
+  .hero__label {
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
     gap: var(--space-sm);
-    margin-top: var(--space-lg);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--c-orange-ink);
+    margin-bottom: var(--space-md);
+  }
+  .hero__label::before {
+    content: '';
+    width: 2rem;
+    height: 1px;
+    background: var(--c-line);
+  }
+
+  .hero__title {
+    font-size: var(--fs-hero);
+    line-height: 0.86;
+    margin-bottom: var(--space-xl);
+  }
+  .hero__line {
+    display: block;
+  }
+  .hero__line--indent {
+    padding-left: clamp(1rem, 6vw, 5rem);
+  }
+  .hero__title .accent {
+    color: var(--c-orange-ink);
+  }
+
+  .hero__bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-xl);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-xl);
+  }
+  .hero__desc {
+    max-width: 26rem;
+    color: var(--c-muted);
+    line-height: 1.8;
   }
   .hero__stats {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xl);
-    margin: var(--space-xl) 0 0;
-  }
-  .hero__stat {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3xs);
+    gap: clamp(1.5rem, 3vw, 3rem);
   }
   .hero__stat-num {
     font-family: var(--font-display);
     font-weight: var(--fw-bold);
-    font-size: var(--fs-xl);
+    font-size: var(--fs-stat);
     line-height: 1;
     letter-spacing: var(--tracking-tight);
   }
   .hero__stat-label {
-    font-size: var(--fs-sm);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
     color: var(--c-muted);
+    margin-top: var(--space-2xs);
+    max-width: 12ch;
   }
-  .hero__media {
-    width: 100%;
-    min-height: 100%;
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
   }
-  .hero__img {
-    width: 100%;
-    height: 100%;
-    min-height: 22rem;
-    object-fit: cover;
-    object-position: 50% 35%;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-soft);
+
+  .hero__scroll-cue {
+    position: absolute;
+    right: 0;
+    bottom: -1rem;
+    writing-mode: vertical-rl;
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--c-muted);
+    display: none;
+  }
+
+  .section-divide {
+    border-bottom: var(--border-hard);
   }
 
   .more-link {
@@ -215,7 +244,11 @@ const featuredProjects = projects.slice(0, 3);
     text-align: center;
   }
   .more-link a {
+    font-family: var(--font-mono);
     font-weight: var(--fw-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    font-size: var(--fs-sm);
     color: var(--c-orange-ink);
     text-decoration: none;
   }
@@ -235,22 +268,25 @@ const featuredProjects = projects.slice(0, 3);
     font-size: var(--fs-2xl);
     font-weight: var(--fw-semibold);
     line-height: var(--leading-snug);
+    text-transform: none;
+  }
+
+  @media (min-width: 60rem) {
+    .hero__scroll-cue {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
   }
 
   @media (max-width: 52rem) {
-    .hero__inner {
-      grid-template-columns: 1fr;
+    .hero__bottom {
+      flex-direction: column;
+      align-items: flex-start;
       gap: var(--space-lg);
     }
-    .hero__media {
-      order: -1;
-      justify-self: stretch;
-      min-height: 0;
-    }
-    .hero__img {
-      height: auto;
-      min-height: 0;
-      aspect-ratio: 16 / 11;
+    .hero__stats {
+      flex-wrap: wrap;
     }
   }
 </style>

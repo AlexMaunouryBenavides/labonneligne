@@ -1,0 +1,289 @@
+---
+/**
+ * Proposition C — « Recibo » : chaque plan en ticket de caisse (bords
+ * perforés, typo mono, ligne « TOTAL »). Métaphore du devis honnête et clair
+ * — reflète directement le positionnement « precios claros, sin sorpresas ».
+ */
+import { formatCLP } from '../../lib/format';
+import Button from '../Button.astro';
+import { plans } from '../../data/plans';
+---
+
+<div class="recibo" data-price-toggle data-mode="once">
+  <div class="recibo__toggle" role="group" aria-label="Modo de pago">
+    <button type="button" class="recibo__opt is-active" data-mode-btn="once" aria-pressed="true">
+      Compra única
+    </button>
+    <button type="button" class="recibo__opt" data-mode-btn="month" aria-pressed="false">
+      Arriendo / mes
+    </button>
+  </div>
+
+  <div class="recibo__stage">
+    <ol role="list" class="recibo__row">
+      {
+        plans.map((plan) => (
+          <li class:list={['recibo__ticket', plan.highlighted && 'recibo__ticket--featured']}>
+            <div class="recibo__perf recibo__perf--top" aria-hidden="true" />
+
+            <header class="recibo__head">
+              <span class="recibo__brand">LA BONNE LIGNE</span>
+              {plan.highlighted && <span class="recibo__stamp">Más elegido</span>}
+            </header>
+
+            <h3 class="recibo__name">{plan.name}</h3>
+            <p class="recibo__tagline">{plan.tagline}</p>
+
+            <div class="recibo__divider" aria-hidden="true" />
+
+            <ul role="list" class="recibo__lines">
+              {plan.features.map((f) => (
+                <li>
+                  <span class="recibo__dash" aria-hidden="true">
+                    —
+                  </span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            <div class="recibo__divider" aria-hidden="true" />
+
+            <div class="recibo__total">
+              <span class="recibo__total-label">Total</span>
+              {plan.custom ? (
+                <span class="recibo__custom">A conversar</span>
+              ) : (
+                <>
+                  <span data-price="once" class="recibo__amount">
+                    {formatCLP(plan.priceOnce!)}
+                    <small>pago único</small>
+                  </span>
+                  <span data-price="month" class="recibo__amount">
+                    {formatCLP(plan.priceMonth!)}
+                    <small>/ mes</small>
+                  </span>
+                </>
+              )}
+            </div>
+
+            {plan.note && <p class="recibo__note">{plan.note}</p>}
+
+            <Button
+              href="/contacto"
+              variant={plan.highlighted ? 'primary' : 'ghost'}
+              class="recibo__cta"
+            >
+              {plan.custom ? 'Conversemos' : 'Empezar'}
+            </Button>
+
+            <div class="recibo__perf recibo__perf--bottom" aria-hidden="true" />
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</div>
+
+<script>
+  function initPriceToggle() {
+    document.querySelectorAll<HTMLElement>('[data-price-toggle]').forEach((root) => {
+      const buttons = root.querySelectorAll<HTMLButtonElement>('[data-mode-btn]');
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const mode = button.dataset.modeBtn ?? 'once';
+          root.setAttribute('data-mode', mode);
+          buttons.forEach((other) => {
+            const active = other === button;
+            other.classList.toggle('is-active', active);
+            other.setAttribute('aria-pressed', String(active));
+          });
+        });
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initPriceToggle);
+</script>
+
+<style is:global>
+  .recibo[data-mode='once'] [data-price='month'],
+  .recibo[data-mode='month'] [data-price='once'] {
+    display: none;
+  }
+</style>
+
+<style>
+  .recibo__toggle {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    margin-bottom: var(--space-xl);
+    background: var(--c-paper-2);
+    border-radius: var(--radius-pill);
+  }
+  .recibo__opt {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--c-muted);
+    transition:
+      background 0.2s var(--ease-out),
+      color 0.2s var(--ease-out);
+  }
+  .recibo__opt.is-active {
+    background: var(--c-ink);
+    color: var(--c-paper);
+  }
+
+  /* Plateau — fond distinct de la carte pour que la perforation « troue » visiblement */
+  .recibo__stage {
+    background: var(--c-paper-2);
+    border-radius: var(--radius-lg);
+    padding: clamp(1.25rem, 3vw, var(--space-xl));
+  }
+  .recibo__row {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+    align-items: start;
+  }
+
+  .recibo__ticket {
+    position: relative;
+    background: var(--c-paper);
+    border: 1px dashed var(--c-hairline);
+    border-radius: var(--radius-sm);
+    padding: var(--space-lg) var(--space-lg) var(--space-md);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-soft);
+    font-family: var(--font-mono);
+  }
+  .recibo__ticket--featured {
+    border-color: var(--c-line);
+  }
+
+  /* Bord perforé — encoches en demi-cercle façon ticket de caisse */
+  .recibo__perf {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 0.7rem;
+    background-image: radial-gradient(circle 0.35rem, var(--c-paper-2) 100%, transparent 100%);
+    background-size: 1.1rem 0.7rem;
+    background-repeat: repeat-x;
+    background-position: center;
+  }
+  .recibo__perf--top {
+    top: -0.35rem;
+  }
+  .recibo__perf--bottom {
+    bottom: -0.35rem;
+  }
+
+  .recibo__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    color: var(--c-muted);
+  }
+  .recibo__stamp {
+    color: var(--c-orange-ink);
+    font-weight: var(--fw-bold);
+    border: 1px solid var(--c-orange-ink);
+    border-radius: var(--radius-sm);
+    padding: 0.1rem 0.4rem;
+    transform: rotate(-3deg);
+  }
+
+  .recibo__name {
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
+    margin-top: var(--space-sm);
+  }
+  .recibo__tagline {
+    font-family: var(--font-body);
+    color: var(--c-muted);
+    font-size: var(--fs-sm);
+    margin-top: var(--space-3xs);
+  }
+
+  .recibo__divider {
+    border-top: 1px dashed var(--c-hairline);
+    margin-block: var(--space-sm);
+  }
+
+  .recibo__lines {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    font-size: var(--fs-sm);
+  }
+  .recibo__dash {
+    color: var(--c-line);
+    margin-right: 0.4em;
+  }
+
+  .recibo__total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+  }
+  .recibo__total-label {
+    font-size: var(--fs-sm);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+  .recibo__amount {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-xl);
+    line-height: 1.15;
+  }
+  .recibo__amount small {
+    font-family: var(--font-mono);
+    font-weight: var(--fw-regular);
+    font-size: var(--fs-label);
+    color: var(--c-muted);
+  }
+  .recibo__custom {
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-lg);
+    color: var(--c-orange-ink);
+  }
+
+  .recibo__note {
+    font-family: var(--font-body);
+    font-size: var(--fs-label);
+    color: var(--c-muted);
+    margin-top: var(--space-2xs);
+  }
+  .recibo__cta {
+    width: 100%;
+    margin-top: var(--space-md);
+    font-family: var(--font-body);
+  }
+
+  @media (max-width: 60rem) {
+    .recibo__row {
+      grid-template-columns: 1fr;
+      max-width: 26rem;
+    }
+  }
+</style>

@@ -1,229 +1,206 @@
 ---
 /**
- * Section « Proceso » — sticky scroll. Grande photo duotone fixée à GAUCHE qui
- * change quand l'étape entre dans le viewport ; liste des 4 étapes à DROITE,
- * l'active passe en orange (IntersectionObserver). Sur mobile : plus de sticky,
- * chaque étape affiche sa propre photo empilée.
- *
- * Requiert le filtre `#duotone-orange` dans la page → inclure <Duotone /> une
- * fois (cf. src/components/Duotone.astro). Réutilisé sur l'accueil et /nosotros.
+ * Section « Proceso » — cartes numérotées empilées (stack), façon spec de
+ * processus technique : grand numéro à gauche, contenu + tags à droite,
+ * séparées par des filets. Réutilisé sur l'accueil et /nosotros.
  */
-import { Image } from 'astro:assets';
 import { processSteps } from '../data/process';
-import conversamos from '../assets/proceso/conversamos.jpg';
-import propuesta from '../assets/proceso/propuesta.jpg';
-import diseno from '../assets/proceso/diseno.jpg';
-import enlinea from '../assets/proceso/enlinea.jpg';
 
-const media = [conversamos, propuesta, diseno, enlinea];
-const steps = processSteps.map((s, i) => ({ ...s, img: media[i]! }));
-const total = String(steps.length).padStart(2, '0');
+const tagsByStep: string[][] = [
+  ['WhatsApp', 'Sin compromiso'],
+  ['Plazo', 'Precio en CLP'],
+  ['Ajustes', 'A tu medida'],
+  ['Hosting', 'Mantención'],
+];
+const steps = processSteps.map((step, i) => ({ ...step, tags: tagsByStep[i] ?? [] }));
 ---
 
-<div class="proceso" data-active="0">
-  <!-- Colonne image (desktop) — fixée pendant le scroll de la liste -->
-  <div class="proceso__media" aria-hidden="true">
-    {
-      steps.map((step, i) => (
-        <Image src={step.img} alt="" width={820} class="proceso__img" data-i={i} />
-      ))
-    }
-    <span class="proceso__counter">
-      <span class="proceso__counter-now" data-counter>01</span>
-      <span class="proceso__counter-rest">/ {total}</span>
-    </span>
-  </div>
-
-  <ol role="list" class="proceso__steps">
-    {
-      steps.map((step, i) => (
-        <li class="proceso__step" data-step={i}>
-          <Image src={step.img} alt="" width={640} class="proceso__mobimg" />
-          <span class="proceso__num">{String(i + 1).padStart(2, '0')}</span>
-          <h3 class="proceso__title">{step.title}</h3>
-          <p class="proceso__text">{step.text}</p>
-        </li>
-      ))
-    }
-  </ol>
-</div>
+<ol role="list" class="stack">
+  {
+    steps.map((step, i) => (
+      <li class="stack__card reveal">
+        <span class="stack__fill" aria-hidden="true" />
+        <div class="stack__step">{String(i + 1).padStart(2, '0')}</div>
+        <div class="stack__body">
+          <h3 class="stack__title">{step.title}</h3>
+          <p class="stack__text">{step.text}</p>
+          {step.tags.length > 0 && (
+            <div class="stack__tags">
+              {step.tags.map((tag, k) => (
+                <span class:list={['tag', k === 1 && 'tag--filled']}>{tag}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      </li>
+    ))
+  }
+</ol>
 
 <script>
-  const roots = document.querySelectorAll<HTMLElement>('.proceso');
-  roots.forEach((root) => {
-    const steps = root.querySelectorAll<HTMLElement>('.proceso__step');
-    const imgs = root.querySelectorAll<HTMLElement>('.proceso__img');
-    const counter = root.querySelector<HTMLElement>('[data-counter]');
+  import { gsap } from 'gsap';
 
-    const setActive = (i: number) => {
-      root.dataset.active = String(i);
-      steps.forEach((s, k) => s.classList.toggle('is-active', k === i));
-      imgs.forEach((img, k) => img.classList.toggle('is-active', k === i));
-      if (counter) counter.textContent = String(i + 1).padStart(2, '0');
-    };
-    setActive(0);
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            setActive(Number((e.target as HTMLElement).dataset.step));
-          }
-        });
-      },
-      { rootMargin: '-48% 0px -48% 0px', threshold: 0 }
-    );
-    steps.forEach((s) => io.observe(s));
-  });
+  // astro:page-load : <main> est remplacé à chaque navigation (transitions
+  // client-side) — ré-attacher les écouteurs sur le DOM frais à chaque fois.
+  function initStackHover() {
+    document.querySelectorAll<HTMLElement>('.stack__card').forEach((card) => {
+      const fill = card.querySelector<HTMLElement>('.stack__fill');
+      if (!fill) return;
+
+      const baseRadius = (fill.offsetWidth || 40) / 2;
+      gsap.set(fill, { xPercent: -50, yPercent: -50, scale: 0 });
+
+      let originX = 0;
+      let originY = 0;
+
+      const place = (e: MouseEvent) => {
+        const rect = card.getBoundingClientRect();
+        originX = e.clientX - rect.left;
+        originY = e.clientY - rect.top;
+        gsap.set(fill, { x: originX, y: originY });
+      };
+
+      /** Rayon nécessaire pour couvrir tout le rectangle depuis un point d'origine hors-centre. */
+      const scaleToCover = () => {
+        const rect = card.getBoundingClientRect();
+        const corners: Array<[number, number]> = [
+          [0, 0],
+          [rect.width, 0],
+          [0, rect.height],
+          [rect.width, rect.height],
+        ];
+        const maxDist = Math.max(
+          ...corners.map((corner) => Math.hypot(corner[0] - originX, corner[1] - originY)),
+        );
+        return (maxDist / baseRadius) * 1.08;
+      };
+
+      card.addEventListener('mouseenter', (e) => {
+        place(e);
+        card.classList.add('is-active');
+        if (prefersReduced) {
+          gsap.set(fill, { scale: scaleToCover() });
+        } else {
+          gsap.to(fill, {
+            scale: scaleToCover(),
+            duration: 0.55,
+            ease: 'power3.out',
+            overwrite: true,
+          });
+        }
+      });
+
+      card.addEventListener('mouseleave', (e) => {
+        place(e);
+        card.classList.remove('is-active');
+        if (prefersReduced) {
+          gsap.set(fill, { scale: 0 });
+        } else {
+          gsap.to(fill, { scale: 0, duration: 0.45, ease: 'power2.inOut', overwrite: true });
+        }
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initStackHover);
 </script>
 
 <style>
-  .proceso {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-    gap: var(--space-2xl);
-    align-items: start;
-  }
-
-  /* Colonne image gauche — sticky */
-  .proceso__media {
-    position: sticky;
-    top: calc(var(--header-h) + var(--space-md));
-    height: min(78vh, 40rem);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    background: var(--c-dark);
-    box-shadow: var(--shadow-soft);
-  }
-  .proceso__img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: url(#duotone-orange);
-    opacity: 0;
-    transform: scale(1.06);
-    transition:
-      opacity 0.6s var(--ease-out),
-      transform 1.2s var(--ease-out);
-  }
-  .proceso__img.is-active {
-    opacity: 1;
-    transform: scale(1);
-  }
-  .proceso__counter {
-    position: absolute;
-    left: var(--space-md);
-    bottom: var(--space-md);
-    z-index: 2;
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.3em;
-    font-family: var(--font-mono);
-    font-weight: var(--fw-bold);
-    color: var(--c-on-line);
-    font-size: var(--fs-xl);
-    text-shadow: 0 2px 12px rgba(17, 17, 17, 0.45);
-  }
-  .proceso__counter-rest {
-    opacity: 0.7;
-    font-size: var(--fs-lg);
-  }
-
-  /* Colonne liste droite */
-  .proceso__steps {
+  .stack {
     margin: 0;
     display: flex;
     flex-direction: column;
+    border: var(--border-hard);
   }
-  .proceso__step {
-    min-height: 62vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: var(--space-2xs);
-    border-top: var(--border-thin);
-    padding-block: var(--space-lg);
-    opacity: 0.4;
-    transition:
-      opacity 0.4s var(--ease-out),
-      transform 0.4s var(--ease-out);
+  .stack__card {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    gap: var(--space-lg);
+    padding: var(--space-lg);
+    align-items: center;
+    color: var(--c-ink);
+    transition: color 0.35s ease;
   }
-  .proceso__step:first-child {
-    border-top: 0;
+  .stack__card.is-active {
+    color: var(--c-paper);
   }
-  .proceso__step.is-active {
-    opacity: 1;
+  .stack__card + .stack__card {
+    border-top: var(--border-hard);
   }
-  /* Photo par étape — mobile seulement */
-  .proceso__mobimg {
-    display: none;
+  /* Disque de remplissage — grossit depuis le point d'entrée du curseur (GSAP) */
+  .stack__fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--c-ink);
+    z-index: 0;
+    pointer-events: none;
+    will-change: transform;
   }
-  .proceso__num {
-    font-family: var(--font-mono);
+  .stack__step,
+  .stack__body {
+    position: relative;
+    z-index: 1;
+  }
+  .stack__step {
+    font-family: var(--font-display);
     font-weight: var(--fw-bold);
-    font-size: var(--fs-sm);
-    color: var(--c-muted);
-    letter-spacing: var(--tracking-label);
-    transition: color 0.4s var(--ease-out);
-  }
-  .proceso__step.is-active .proceso__num {
-    color: var(--c-orange-ink);
-  }
-  .proceso__title {
-    font-size: var(--fs-3xl);
-    line-height: var(--leading-tight);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 1;
     letter-spacing: var(--tracking-tight);
+    color: var(--c-line);
   }
-  .proceso__text {
+  .stack__title {
+    font-size: var(--fs-xl);
+    line-height: 0.95;
+    margin-bottom: var(--space-2xs);
+  }
+  .stack__text {
     color: var(--c-muted);
-    font-size: var(--fs-lg);
-    max-width: 32ch;
+    max-width: 46ch;
+    transition: color 0.35s ease;
+  }
+  .stack__card.is-active .stack__text {
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .stack__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin-top: var(--space-sm);
   }
 
-  /* Mobile : plus de sticky — photo duotone puis texte, empilés par étape */
-  @media (max-width: 52rem) {
-    .proceso {
-      grid-template-columns: 1fr;
-      gap: var(--space-xl);
-    }
-    .proceso__media {
-      display: none;
-    }
-    .proceso__step {
-      min-height: 0;
-      opacity: 1;
-      padding-block: var(--space-md);
-      gap: var(--space-xs);
-    }
-    .proceso__mobimg {
-      display: block;
-      width: 100%;
-      height: auto;
-      aspect-ratio: 16 / 9;
-      object-fit: cover;
-      border-radius: var(--radius-md);
-      filter: url(#duotone-orange);
-      margin-bottom: var(--space-2xs);
-    }
-    .proceso__num {
-      color: var(--c-orange-ink);
-    }
-    .proceso__title {
-      font-size: var(--fs-2xl);
-    }
+  .tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: var(--fw-medium);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    padding: 0.3em 0.7em;
+    border: 2px solid var(--c-ink);
+    background: var(--c-paper);
+    color: var(--c-ink);
   }
-  @media (prefers-reduced-motion: reduce) {
-    .proceso__img {
-      transition: opacity 0.2s linear;
-      transform: none;
+  .tag--filled {
+    background: var(--c-ink);
+    color: var(--c-paper);
+  }
+
+  @media (max-width: 40rem) {
+    .stack__card {
+      grid-template-columns: 1fr;
+      gap: var(--space-sm);
     }
-    .proceso__img.is-active {
-      transform: none;
-    }
-    .proceso__step {
-      transition: none;
+    .stack__step {
+      font-size: var(--fs-2xl);
     }
   }
 </style>

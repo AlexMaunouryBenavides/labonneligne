@@ -1,4 +1,10 @@
 ---
+/**
+ * Header — bandeau fixe noir, bordure inférieure orange sécurité. Nav en
+ * cellules verticales séparées par des filets (inversion instantanée au
+ * survol, sans transition — cf. Axis Industrial). Horloge Chili en direct +
+ * pastille « en línea » côté système.
+ */
 import { site } from '../config/site';
 import Logo from './Logo.astro';
 
@@ -7,34 +13,38 @@ const isActive = (href: string) =>
   href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
 ---
 
-<header class="site-header">
-  <div class="container site-header__inner">
-    <a class="site-header__brand" href="/" aria-label={`${site.name} — inicio`}>
-      <Logo />
-    </a>
+<header class="site-header" transition:persist>
+  <div class="site-header__inner">
+    <div class="site-header__left">
+      <a class="site-header__brand" href="/" aria-label={`${site.name} — inicio`}>
+        <Logo size="1.65rem" />
+      </a>
+      <!-- <span class="site-header__sep" aria-hidden="true"></span>
+      <span class="site-header__descriptor">{site.descriptor}</span> -->
+    </div>
+
+    <nav id="primary-nav" class="primary-nav" aria-label="Navegación principal">
+      {
+        site.nav.map((item) => (
+          <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="site-header__right">
+      <div class="site-header__status">
+        <span class="site-header__status-dot" aria-hidden="true"></span>
+        <span>En línea</span>
+      </div>
+      <div class="site-header__clock" id="clCLTClock">--:--:-- CLT</div>
+    </div>
 
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
       <span class="nav-toggle__bars" aria-hidden="true"></span>
       <span class="visually-hidden">Abrir menú</span>
     </button>
-
-    <nav id="primary-nav" class="primary-nav" aria-label="Navegación principal">
-      <ul role="list" class="primary-nav__list">
-        {
-          site.nav.map((item) => (
-            <li>
-              <a
-                href={item.href}
-                class="primary-nav__link"
-                aria-current={isActive(item.href) ? 'page' : undefined}
-              >
-                {item.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
   </div>
 </header>
 
@@ -46,6 +56,42 @@ const isActive = (href: string) =>
     toggle.setAttribute('aria-expanded', String(open));
     toggle.querySelector('.visually-hidden')!.textContent = open ? 'Cerrar menú' : 'Abrir menú';
   });
+  document.querySelectorAll<HTMLAnchorElement>('.primary-nav a').forEach((link) => {
+    link.addEventListener('click', () => {
+      header?.classList.remove('site-header--open');
+      toggle?.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  const clockEl = document.getElementById('clCLTClock');
+  if (clockEl) {
+    const fmt = new Intl.DateTimeFormat('es-CL', {
+      timeZone: 'America/Santiago',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+    const tick = () => {
+      clockEl.textContent = `${fmt.format(new Date())} CLT`;
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  // Le header est persistant entre navigations (transition:persist) : la page
+  // active doit être recalculée à la main après chaque changement de page.
+  function updateActiveNav() {
+    const pathname = location.pathname.replace(/\/$/, '') || '/';
+    document.querySelectorAll<HTMLAnchorElement>('.primary-nav a').forEach((link) => {
+      const href = link.getAttribute('href') ?? '';
+      const isActive =
+        href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
+      if (isActive) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+  }
+  document.addEventListener('astro:after-swap', updateActiveNav);
 </script>
 
 <style>
@@ -53,128 +99,186 @@ const isActive = (href: string) =>
     position: sticky;
     top: 0;
     z-index: 50;
-    background: color-mix(in srgb, var(--c-paper) 88%, transparent);
-    backdrop-filter: blur(10px);
-    border-bottom: var(--border-thin);
+    height: var(--header-h);
+    background: var(--c-dark);
+    color: var(--c-paper);
+    border-bottom: 2px solid var(--c-line);
+    display: flex;
+    align-items: center;
+    padding-inline: var(--container-pad);
   }
   .site-header__inner {
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: var(--header-h);
-    gap: var(--space-md);
-  }
-  .site-header__brand {
-    text-decoration: none;
-    display: inline-flex;
+    gap: var(--space-sm);
   }
 
-  .primary-nav__list {
+  .site-header__left {
     display: flex;
     align-items: center;
-    gap: clamp(1rem, 2.5vw, 2rem);
-    margin: 0;
+    gap: var(--space-sm);
+    min-width: 0;
   }
-  .primary-nav__link {
-    font-size: var(--fs-sm);
-    font-weight: var(--fw-medium);
+  .site-header__brand {
+    display: inline-flex;
     text-decoration: none;
-    color: var(--c-ink);
-    padding: 0.4rem 0;
-    position: relative;
-    transition: color 0.18s var(--ease-out);
   }
-  /* La "ligne" sous le lien : se déploie au survol / page active */
-  .primary-nav__link::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -0.1rem;
-    height: 2px;
-    width: 100%;
+  .site-header__brand :global(.logo__wordmark) {
+    color: var(--c-paper);
+  }
+  .site-header__sep {
+    width: 1px;
+    height: 1rem;
+    background: var(--c-hairline-on-dark);
+    flex: none;
+  }
+  .site-header__descriptor {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    opacity: 0.45;
+    white-space: nowrap;
+  }
+
+  .primary-nav {
+    display: flex;
+    align-items: stretch;
+    height: var(--header-h);
+    border-left: 1px solid var(--c-hairline-on-dark);
+  }
+  .primary-nav a {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    padding-inline: var(--space-sm);
+    display: flex;
+    align-items: center;
+    border-right: 1px solid var(--c-hairline-on-dark);
+    color: rgba(255, 255, 255, 0.55);
+    text-decoration: none;
+    transition:
+      background 0.15s var(--ease-out),
+      color 0.15s var(--ease-out);
+  }
+  .primary-nav a:hover {
     background: var(--c-line);
-    border-radius: var(--radius-pill);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.25s var(--ease-out);
+    color: var(--c-on-line);
   }
-  .primary-nav__link:hover,
-  .primary-nav__link[aria-current='page'] {
-    color: var(--c-orange-ink);
+  .primary-nav a[aria-current='page'] {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--c-paper);
   }
-  .primary-nav__link:hover::after,
-  .primary-nav__link[aria-current='page']::after {
-    transform: scaleX(1);
+
+  .site-header__right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+  .site-header__status {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+  .site-header__status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--c-status);
+    animation: header-pulse 2s ease-in-out infinite;
+  }
+  @keyframes header-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+  .site-header__clock {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: 0.08em;
+    opacity: 0.7;
+    min-width: 6.5em;
+    text-align: right;
   }
 
   .nav-toggle {
     display: none;
-    width: 2.75rem;
-    height: 2.75rem;
-    border: var(--border-thin);
-    border-radius: var(--radius-sm);
-    background: var(--c-paper);
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 2px solid var(--c-paper);
+    background: transparent;
     cursor: pointer;
     place-items: center;
+    flex: none;
   }
   .nav-toggle__bars,
   .nav-toggle__bars::before,
   .nav-toggle__bars::after {
     content: '';
     display: block;
-    width: 1.25rem;
+    width: 1.1rem;
     height: 2px;
-    background: var(--c-ink);
-    border-radius: 2px;
+    background: var(--c-paper);
     transition:
       transform 0.2s var(--ease-out),
       opacity 0.2s var(--ease-out);
   }
   .nav-toggle__bars::before {
-    transform: translateY(-6px);
+    transform: translateY(-5px);
   }
   .nav-toggle__bars::after {
-    transform: translateY(4px);
+    transform: translateY(3px);
   }
 
-  /* — Mobile — */
+  @media (max-width: 60rem) {
+    .site-header__descriptor,
+    .site-header__status span:last-child {
+      display: none;
+    }
+  }
+
   @media (max-width: 48rem) {
     .nav-toggle {
       display: grid;
     }
     .primary-nav {
-      position: absolute;
-      inset: var(--header-h) 0 auto 0;
-      background: var(--c-paper);
-      border-bottom: var(--border-thin);
-      max-height: 0;
-      overflow: hidden;
-      /* visibility:hidden retire les liens repliés de l'ordre de tabulation
-         (sinon focusables « à l'aveugle » au clavier — ux.r11). */
-      visibility: hidden;
-      transition:
-        max-height 0.3s var(--ease-out),
-        visibility 0.3s var(--ease-out);
+      display: none;
     }
-    .primary-nav__list {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0;
-      padding: var(--space-2xs) var(--container-pad) var(--space-md);
-    }
-    .primary-nav__link {
-      display: block;
-      padding: var(--space-sm) 0;
-      border-bottom: var(--border-thin);
-      font-size: var(--fs-lg);
-    }
-    .primary-nav__link::after {
+    .site-header__right {
       display: none;
     }
 
     .site-header--open .primary-nav {
-      max-height: 80svh;
-      visibility: visible;
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      top: var(--header-h);
+      left: 0;
+      width: 100%;
+      height: auto;
+      background: var(--c-dark);
+      border-bottom: 2px solid var(--c-line);
+      max-height: calc(100svh - var(--header-h));
+      overflow-y: auto;
+    }
+    .site-header--open .primary-nav a {
+      border-right: 0;
+      border-bottom: 1px solid var(--c-hairline-on-dark);
+      padding-block: var(--space-sm);
+      height: auto;
     }
     .site-header--open .nav-toggle__bars {
       background: transparent;

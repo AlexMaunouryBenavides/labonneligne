@@ -1,0 +1,314 @@
+---
+/**
+ * Proposition A — « Comparativa » : table éditoriale dense. Colonnes = plans,
+ * lignes = Precio / Incluye / Nota. Le plus scannable pour comparer d'un coup
+ * d'œil ; la colonne « más elegido » reçoit un accent orange en tête.
+ */
+import { formatCLP } from '../../lib/format';
+import Button from '../Button.astro';
+import { plans } from '../../data/plans';
+---
+
+<div class="comparativa" data-price-toggle data-mode="once">
+  <div class="comparativa__toggle" role="group" aria-label="Modo de pago">
+    <button
+      type="button"
+      class="comparativa__opt is-active"
+      data-mode-btn="once"
+      aria-pressed="true"
+    >
+      Compra única
+    </button>
+    <button type="button" class="comparativa__opt" data-mode-btn="month" aria-pressed="false">
+      Arriendo / mes
+    </button>
+  </div>
+
+  <div class="comparativa__table">
+    <div class="comparativa__row comparativa__row--head">
+      <div class="comparativa__label" aria-hidden="true"></div>
+      {
+        plans.map((plan) => (
+          <div class:list={['comparativa__col', { 'is-featured': plan.highlighted }]}>
+            {plan.highlighted && <span class="comparativa__badge">Más elegido</span>}
+            <h3 class="comparativa__name">{plan.name}</h3>
+            <p class="comparativa__tagline">{plan.tagline}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="comparativa__row">
+      <div class="comparativa__label">Precio</div>
+      {
+        plans.map((plan) => (
+          <div class:list={['comparativa__col', { 'is-featured': plan.highlighted }]}>
+            {plan.custom ? (
+              <span class="comparativa__custom">A conversar</span>
+            ) : (
+              <>
+                <span data-price="once" class="comparativa__amount">
+                  {formatCLP(plan.priceOnce!)}
+                  <span class="comparativa__per">pago único</span>
+                </span>
+                <span data-price="month" class="comparativa__amount">
+                  {formatCLP(plan.priceMonth!)}
+                  <span class="comparativa__per">/ mes</span>
+                </span>
+              </>
+            )}
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="comparativa__row comparativa__row--features">
+      <div class="comparativa__label">Incluye</div>
+      {
+        plans.map((plan) => (
+          <div class:list={['comparativa__col', { 'is-featured': plan.highlighted }]}>
+            <ul role="list" class="comparativa__features">
+              {plan.features.map((f) => (
+                <li>{f}</li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="comparativa__row">
+      <div class="comparativa__label">Nota</div>
+      {
+        plans.map((plan) => (
+          <div class:list={['comparativa__col', { 'is-featured': plan.highlighted }]}>
+            {plan.note && <p class="comparativa__note">{plan.note}</p>}
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="comparativa__row comparativa__row--cta">
+      <div class="comparativa__label" aria-hidden="true"></div>
+      {
+        plans.map((plan) => (
+          <div class:list={['comparativa__col', { 'is-featured': plan.highlighted }]}>
+            <Button
+              href="/contacto"
+              variant={plan.highlighted ? 'primary' : 'ghost'}
+              class="comparativa__cta"
+            >
+              {plan.custom ? 'Conversemos' : 'Empezar'}
+            </Button>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<script>
+  function initPriceToggle() {
+    document.querySelectorAll<HTMLElement>('[data-price-toggle]').forEach((root) => {
+      const buttons = root.querySelectorAll<HTMLButtonElement>('[data-mode-btn]');
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const mode = button.dataset.modeBtn ?? 'once';
+          root.setAttribute('data-mode', mode);
+          buttons.forEach((other) => {
+            const active = other === button;
+            other.classList.toggle('is-active', active);
+            other.setAttribute('aria-pressed', String(active));
+          });
+        });
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initPriceToggle);
+</script>
+
+<style is:global>
+  .comparativa[data-mode='once'] [data-price='month'],
+  .comparativa[data-mode='month'] [data-price='once'] {
+    display: none;
+  }
+</style>
+
+<style>
+  .comparativa__toggle {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    margin-bottom: var(--space-lg);
+    background: var(--c-paper-2);
+    border-radius: var(--radius-pill);
+  }
+  .comparativa__opt {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--c-muted);
+    transition:
+      background 0.2s var(--ease-out),
+      color 0.2s var(--ease-out);
+  }
+  .comparativa__opt.is-active {
+    background: var(--c-ink);
+    color: var(--c-paper);
+  }
+
+  .comparativa__table {
+    display: flex;
+    flex-direction: column;
+  }
+  .comparativa__row {
+    display: grid;
+    grid-template-columns: 9rem repeat(3, 1fr);
+    border-top: var(--border-thin);
+  }
+  .comparativa__row--head {
+    border-top: 0;
+  }
+  .comparativa__label {
+    padding: var(--space-md) var(--space-sm) var(--space-md) 0;
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--c-muted);
+    display: flex;
+    align-items: center;
+  }
+  .comparativa__col {
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-2xs);
+  }
+  .comparativa__col.is-featured {
+    background: color-mix(in srgb, var(--c-line) 7%, transparent);
+    position: relative;
+  }
+  .comparativa__row--head .comparativa__col.is-featured {
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+  }
+  .comparativa__row--cta .comparativa__col.is-featured {
+    border-bottom-left-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+  }
+  .comparativa__col.is-featured::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--c-line);
+  }
+  .comparativa__row--head .comparativa__col.is-featured::before {
+    border-radius: var(--radius-pill);
+  }
+  .comparativa__row:not(.comparativa__row--head) .comparativa__col.is-featured::before {
+    display: none;
+  }
+
+  .comparativa__badge {
+    align-self: flex-start;
+    background: var(--c-line);
+    color: var(--c-on-line);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-pill);
+    margin-bottom: var(--space-2xs);
+  }
+  .comparativa__name {
+    font-size: var(--fs-xl);
+  }
+  .comparativa__tagline {
+    color: var(--c-muted);
+    font-size: var(--fs-sm);
+  }
+
+  .comparativa__amount {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-xl);
+  }
+  .comparativa__per,
+  .comparativa__custom {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-regular);
+    color: var(--c-muted);
+  }
+  .comparativa__custom {
+    font-size: var(--fs-lg);
+    color: var(--c-orange-ink);
+    font-weight: var(--fw-bold);
+  }
+
+  .comparativa__features {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+  .comparativa__features li {
+    position: relative;
+    padding-left: 1.4rem;
+    font-size: var(--fs-sm);
+  }
+  .comparativa__features li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 0.75rem;
+    height: 2px;
+    background: var(--c-line);
+    border-radius: var(--radius-pill);
+  }
+
+  .comparativa__note {
+    font-size: var(--fs-label);
+    color: var(--c-muted);
+  }
+  .comparativa__cta {
+    width: 100%;
+  }
+
+  /* Mobile : table scrollable horizontalement, colonne d'étiquettes fixée */
+  @media (max-width: 60rem) {
+    .comparativa__table {
+      overflow-x: auto;
+      margin-inline: calc(-1 * var(--container-pad));
+      padding-inline: var(--container-pad);
+    }
+    .comparativa__row {
+      grid-template-columns: 6rem repeat(3, minmax(11rem, 1fr));
+      width: max-content;
+      min-width: 100%;
+    }
+    .comparativa__label {
+      position: sticky;
+      left: 0;
+      background: var(--c-paper);
+      z-index: 1;
+    }
+  }
+</style>

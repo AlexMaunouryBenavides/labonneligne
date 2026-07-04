@@ -1,0 +1,306 @@
+---
+/**
+ * Proposition B — « Escalón » : 3 tuiles en escalier montant — Vitrina (base,
+ * papier), Estándar (élevé, orange, « más elegido »), A medida (le plus haut,
+ * sombre, « sin límites »). L'ascension encode l'idée réelle de grandir avec
+ * l'entreprise ; « la ligne » trace la trajectoire montante derrière les tuiles.
+ */
+import { formatCLP } from '../../lib/format';
+import Button from '../Button.astro';
+import { plans } from '../../data/plans';
+---
+
+<div class="escalon" data-price-toggle data-mode="once">
+  <div class="escalon__toggle" role="group" aria-label="Modo de pago">
+    <button type="button" class="escalon__opt is-active" data-mode-btn="once" aria-pressed="true">
+      Compra única
+    </button>
+    <button type="button" class="escalon__opt" data-mode-btn="month" aria-pressed="false">
+      Arriendo / mes
+    </button>
+  </div>
+
+  <div class="escalon__stage">
+    <svg
+      class="escalon__line"
+      viewBox="0 0 100 60"
+      preserveAspectRatio="none"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        class="js-draw"
+        d="M4 50 L37 30 L70 12 L96 4"
+        stroke="var(--c-line)"
+        stroke-width="1.5"
+        stroke-linecap="round"></path>
+    </svg>
+
+    <ol role="list" class="escalon__row">
+      {
+        plans.map((plan) => (
+          <li
+            class:list={[
+              'escalon__tile',
+              plan.highlighted && 'escalon__tile--accent',
+              plan.custom && 'escalon__tile--dark',
+            ]}
+          >
+            {plan.highlighted && <span class="escalon__badge">Más elegido</span>}
+            <h3 class="escalon__name">{plan.name}</h3>
+            <p class="escalon__tagline">{plan.tagline}</p>
+
+            <div class="escalon__price">
+              {plan.custom ? (
+                <span class="escalon__custom">A conversar</span>
+              ) : (
+                <>
+                  <span data-price="once" class="escalon__amount">
+                    {formatCLP(plan.priceOnce!)}
+                    <span class="escalon__per">pago único</span>
+                  </span>
+                  <span data-price="month" class="escalon__amount">
+                    {formatCLP(plan.priceMonth!)}
+                    <span class="escalon__per">/ mes</span>
+                  </span>
+                </>
+              )}
+            </div>
+
+            <ul role="list" class="escalon__features">
+              {plan.features.map((f) => (
+                <li>{f}</li>
+              ))}
+            </ul>
+
+            {plan.note && <p class="escalon__note">{plan.note}</p>}
+
+            <Button
+              href="/contacto"
+              variant={plan.highlighted ? 'primary' : 'ghost'}
+              class="escalon__cta"
+            >
+              {plan.custom ? 'Conversemos' : 'Empezar'}
+            </Button>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</div>
+
+<script>
+  function initPriceToggle() {
+    document.querySelectorAll<HTMLElement>('[data-price-toggle]').forEach((root) => {
+      const buttons = root.querySelectorAll<HTMLButtonElement>('[data-mode-btn]');
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const mode = button.dataset.modeBtn ?? 'once';
+          root.setAttribute('data-mode', mode);
+          buttons.forEach((other) => {
+            const active = other === button;
+            other.classList.toggle('is-active', active);
+            other.setAttribute('aria-pressed', String(active));
+          });
+        });
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initPriceToggle);
+</script>
+
+<style is:global>
+  .escalon[data-mode='once'] [data-price='month'],
+  .escalon[data-mode='month'] [data-price='once'] {
+    display: none;
+  }
+</style>
+
+<style>
+  .escalon__toggle {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    margin-bottom: var(--space-xl);
+    background: var(--c-paper-2);
+    border-radius: var(--radius-pill);
+  }
+  .escalon__opt {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--c-muted);
+    transition:
+      background 0.2s var(--ease-out),
+      color 0.2s var(--ease-out);
+  }
+  .escalon__opt.is-active {
+    background: var(--c-ink);
+    color: var(--c-paper);
+  }
+
+  .escalon__stage {
+    position: relative;
+    padding-top: var(--space-lg);
+  }
+  .escalon__line {
+    position: absolute;
+    inset: 0 0 auto 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    overflow: visible;
+    z-index: 0;
+    opacity: 0.6;
+  }
+  .escalon__row {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+    align-items: end;
+  }
+  .escalon__tile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding: var(--space-lg);
+    background: var(--c-paper);
+    border: var(--border-thin);
+    border-radius: var(--radius-lg);
+    position: relative;
+  }
+  /* Escalier : Vitrina base, Estándar +1 marche, A medida +2 marches */
+  .escalon__tile:nth-child(1) {
+    transform: translateY(0);
+  }
+  .escalon__tile:nth-child(2) {
+    transform: translateY(-1.75rem);
+    box-shadow: var(--shadow-soft);
+  }
+  .escalon__tile:nth-child(3) {
+    transform: translateY(-3.5rem);
+  }
+  .escalon__tile--accent {
+    background: var(--c-accent);
+    border-color: transparent;
+    color: var(--c-on-line);
+  }
+  .escalon__tile--accent .escalon__tagline,
+  .escalon__tile--accent .escalon__per {
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .escalon__tile--dark {
+    background: var(--c-dark);
+    border-color: transparent;
+    color: var(--c-paper);
+  }
+  .escalon__tile--dark .escalon__tagline {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .escalon__tile--dark .escalon__custom {
+    color: var(--c-line);
+  }
+
+  .escalon__badge {
+    align-self: flex-start;
+    background: var(--c-ink);
+    color: var(--c-paper);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-pill);
+  }
+  .escalon__name {
+    font-size: var(--fs-xl);
+  }
+  .escalon__tagline {
+    color: var(--c-muted);
+    font-size: var(--fs-sm);
+    min-height: 2.6em;
+  }
+  .escalon__price {
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--c-hairline);
+  }
+  .escalon__tile--accent .escalon__price,
+  .escalon__tile--dark .escalon__price {
+    border-bottom-color: rgba(255, 255, 255, 0.22);
+  }
+  .escalon__amount {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-2xl);
+  }
+  .escalon__per,
+  .escalon__custom {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--c-muted);
+  }
+  .escalon__custom {
+    font-size: var(--fs-xl);
+    font-weight: var(--fw-bold);
+    color: var(--c-orange-ink);
+  }
+  .escalon__features {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    flex: 1;
+  }
+  .escalon__features li {
+    position: relative;
+    padding-left: 1.4rem;
+    font-size: var(--fs-sm);
+  }
+  .escalon__features li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 0.75rem;
+    height: 2px;
+    background: currentColor;
+    opacity: 0.6;
+    border-radius: var(--radius-pill);
+  }
+  .escalon__note {
+    font-size: var(--fs-label);
+    opacity: 0.75;
+  }
+  .escalon__cta {
+    width: 100%;
+    margin-top: var(--space-2xs);
+  }
+
+  /* Tablette/mobile : plus d'escalier, pile simple */
+  @media (max-width: 60rem) {
+    .escalon__line {
+      display: none;
+    }
+    .escalon__row {
+      grid-template-columns: 1fr;
+      max-width: 28rem;
+    }
+    .escalon__tile:nth-child(1),
+    .escalon__tile:nth-child(2),
+    .escalon__tile:nth-child(3) {
+      transform: none;
+    }
+  }
+</style>

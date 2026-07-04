@@ -1,0 +1,94 @@
+---
+/**
+ * Transition de page — léger, pas de rideau plein écran. Un filet orange
+ * (reprend « la ligne ») balaie l'écran de gauche à droite pendant que le
+ * contenu (#main) s'estompe en fondu rapide ; au swap, le contenu réapparaît
+ * pendant que le filet continue sa course et sort à droite. Piloté par GSAP,
+ * synchronisé sur le cycle de vie du routeur d'Astro (astro:before-preparation
+ * / astro:after-swap).
+ *
+ * `transition:persist` : ce composant ne doit JAMAIS être re-rendu au fil des
+ * navigations — sinon son script (et les écouteurs qu'il pose sur `document`)
+ * s'exécuterait une fois par page visitée, empilant des écouteurs en double.
+ */
+---
+
+<div class="page-transition-line" transition:persist aria-hidden="true"></div>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const line = document.querySelector<HTMLElement>('.page-transition-line');
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (line) {
+    const SWEEP_MS = 350;
+    const FADE_OUT_MS = 180;
+    const FADE_IN_MS = 280;
+
+    function getMain() {
+      return document.getElementById('main');
+    }
+
+    function cover() {
+      const main = getMain();
+      if (prefersReduced) {
+        if (main) gsap.set(main, { opacity: 0 });
+        return Promise.resolve();
+      }
+      gsap.set(line, { scaleX: 0, transformOrigin: 'left center', opacity: 1 });
+      gsap.to(line, { scaleX: 1, duration: SWEEP_MS / 1000, ease: 'power2.inOut' });
+      if (main) gsap.to(main, { opacity: 0, duration: FADE_OUT_MS / 1000, ease: 'power1.in' });
+      // Le rAF de GSAP peut rester en pause pendant la préparation de la
+      // transition native (le navigateur gèle le rendu avant de capturer les
+      // snapshots) : son Promise .then() ne se résoudrait alors jamais. On
+      // résout donc via setTimeout, indépendant du ticker GSAP.
+      return new Promise((resolve) => setTimeout(resolve, Math.max(SWEEP_MS, FADE_OUT_MS) + 10));
+    }
+
+    function reveal() {
+      const main = getMain();
+      if (prefersReduced) {
+        gsap.set(line, { opacity: 0 });
+        if (main) gsap.set(main, { opacity: 1 });
+        return;
+      }
+      gsap.set(line, { transformOrigin: 'right center' });
+      gsap.to(line, {
+        scaleX: 0,
+        duration: SWEEP_MS / 1000,
+        ease: 'power2.inOut',
+        onComplete: () => gsap.set(line, { opacity: 0 }),
+      });
+      if (main) {
+        gsap.set(main, { opacity: 0 });
+        gsap.to(main, { opacity: 1, duration: FADE_IN_MS / 1000, ease: 'power1.out' });
+      }
+    }
+
+    document.addEventListener('astro:before-preparation', (event) => {
+      const originalLoader = event.loader;
+      event.loader = async () => {
+        await Promise.all([cover(), originalLoader()]);
+      };
+    });
+
+    document.addEventListener('astro:after-swap', reveal);
+  }
+</script>
+
+<style>
+  .page-transition-line {
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--c-line);
+    transform: scaleX(0);
+    transform-origin: left center;
+    z-index: 200;
+    pointer-events: none;
+    will-change: transform;
+  }
+</style>

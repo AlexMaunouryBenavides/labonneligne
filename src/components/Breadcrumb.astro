@@ -1,0 +1,58 @@
+---
+/** Fil d'Ariane — Inicio / … / page courante. Le dernier élément n'a pas de lien. */
+interface Crumb {
+  label: string;
+  href?: string;
+}
+interface Props {
+  items: Crumb[];
+}
+const { items } = Astro.props;
+---
+
+<nav class="breadcrumb" aria-label="Ruta de navegación">
+  <a href="/">Inicio</a>
+  {
+    items.map((item) => (
+      <>
+        <span aria-hidden="true">/</span>
+        {item.href ? (
+          <a href={item.href}>{item.label}</a>
+        ) : (
+          <span aria-current="page" class="breadcrumb__current">
+            {item.label}
+          </span>
+        )}
+      </>
+    ))
+  }
+</nav>
+
+<style>
+  .breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2xs);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--c-muted);
+    margin-bottom: var(--space-lg);
+  }
+  .breadcrumb a {
+    color: var(--c-muted);
+    text-decoration: none;
+  }
+  .breadcrumb a:hover {
+    color: var(--c-orange-ink);
+  }
+  .breadcrumb__current {
+    color: var(--c-ink);
+    max-width: 30ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>

@@ -26,36 +26,48 @@ const Tag = href ? 'a' : 'button';
     justify-content: center;
     gap: 0.5rem;
     min-height: 2.9rem;
-    padding: 0.7rem 1.5rem;
-    border-radius: var(--radius-pill);
-    font-family: var(--font-body);
+    padding: 0.7rem 1.75rem;
+    font-family: var(--font-mono);
     font-size: var(--fs-sm);
-    font-weight: var(--fw-semibold);
+    font-weight: var(--fw-medium);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
     text-decoration: none;
     cursor: pointer;
-    border: 2px solid transparent;
+    border: var(--border-hard);
     transition:
-      transform 0.18s var(--ease-out),
-      background 0.18s var(--ease-out),
-      color 0.18s var(--ease-out);
-  }
-  .btn:hover {
-    transform: translateY(-2px);
+      transform 0.15s var(--ease-out),
+      box-shadow 0.15s var(--ease-out),
+      background 0.15s var(--ease-out),
+      color 0.15s var(--ease-out);
   }
   .btn--primary {
-    background: var(--c-ink);
-    color: var(--c-paper);
+    background: var(--c-line);
+    color: var(--c-on-line);
+    border-color: var(--c-ink);
+    box-shadow: var(--shadow-hard);
   }
   .btn--primary:hover {
-    background: var(--c-orange-ink);
+    transform: translate(-3px, -3px);
+    box-shadow: var(--shadow-hard-hover);
+  }
+  .btn--primary:active {
+    transform: translate(3px, 3px);
+    box-shadow: none;
   }
   .btn--ghost {
-    background: transparent;
+    background: var(--c-paper);
     color: var(--c-ink);
-    border-color: var(--c-hairline);
+    box-shadow: var(--shadow-hard);
   }
   .btn--ghost:hover {
-    border-color: var(--c-line);
-    color: var(--c-orange-ink);
+    background: var(--c-ink);
+    color: var(--c-paper);
+    transform: translate(-3px, -3px);
+    box-shadow: var(--shadow-hard-hover);
+  }
+  .btn--ghost:active {
+    transform: translate(3px, 3px);
+    box-shadow: none;
   }
 </style>

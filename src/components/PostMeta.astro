@@ -1,0 +1,46 @@
+---
+/** Métadonnées d'un article : catégorie (lien) · date · temps de lecture optionnel. */
+import type { Post } from '../lib/blog';
+import { slugify, readingTime } from '../lib/blog';
+import { formatDate } from '../lib/format';
+
+interface Props {
+  post: Post;
+  showCategory?: boolean;
+  showReadingTime?: boolean;
+}
+const { post, showCategory = true, showReadingTime = false } = Astro.props;
+---
+
+<p class="post-meta">
+  {
+    showCategory && (
+      <a class="post-meta__cat" href={`/blog/categoria/${slugify(post.data.category)}`}>
+        {post.data.category}
+      </a>
+    )
+  }
+  <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+  {showReadingTime && <span>{readingTime(post.body)}</span>}
+</p>
+
+<style>
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+  .post-meta__cat {
+    color: var(--c-orange-ink);
+    text-decoration: none;
+  }
+  .post-meta__cat:hover {
+    text-decoration: underline;
+  }
+</style>

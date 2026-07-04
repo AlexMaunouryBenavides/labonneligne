@@ -14,7 +14,7 @@ const { projects } = Astro.props;
 ---
 
 <div class="projects-flow">
-  {projects.map((project) => <ProjectRow project={project} />)}
+  {projects.map((project, i) => <ProjectRow project={project} index={i} />)}
 </div>
 
 <style>

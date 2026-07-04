@@ -1,6 +1,9 @@
 ---
+/**
+ * Footer — grille complète façon Axis Industrial : marque + 3 colonnes,
+ * bordure supérieure orange, fond sombre, barre de copyright + retour en haut.
+ */
 import { site } from '../config/site';
-import Logo from './Logo.astro';
 import { whatsappUrl, telHref, mailtoHref } from '../lib/contact';
 
 const year = new Date().getFullYear();
@@ -10,39 +13,53 @@ const social = [
   { label: 'Facebook', href: site.social.facebook },
   { label: 'TikTok', href: site.social.tiktok },
 ];
+const services = [
+  { label: 'Vitrina', href: '/planes' },
+  { label: 'Estándar', href: '/planes' },
+  { label: 'A medida', href: '/planes' },
+  { label: 'SEO local', href: '/planes' },
+];
+const company = [
+  { label: 'Nosotros', href: '/nosotros' },
+  { label: 'Proyectos', href: '/proyectos' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Planes', href: '/planes' },
+];
 ---
 
-<footer class="site-footer surface-dark">
-  <div class="container site-footer__inner">
+<footer class="site-footer" transition:persist>
+  <div class="container site-footer__top">
     <div class="site-footer__brand">
-      <Logo size="2rem" />
-      <p class="site-footer__tagline">{site.brandTagline}</p>
+      <h2 class="site-footer__brand-name">
+        La Bonne<br />Ligne<span class="accent">.</span>
+      </h2>
+      <p class="site-footer__brand-desc">{site.brandTagline}</p>
     </div>
 
-    <nav class="site-footer__nav" aria-label="Navegación del pie">
-      <ul role="list">
-        {
-          site.nav.map((item) => (
-            <li>
-              <a href={item.href}>{item.label}</a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
+    <div class="site-footer__col">
+      <div class="site-footer__col-title">Servicios</div>
+      {services.map((s) => <a href={s.href}>{s.label}</a>)}
+    </div>
 
-    <!-- NAP — ancrage SEO local, présenté en mono (identité "technique") -->
-    <address class="site-footer__nap">
-      <span class="eyebrow">Contacto</span>
+    <div class="site-footer__col">
+      <div class="site-footer__col-title">Empresa</div>
+      {company.map((c) => <a href={c.href}>{c.label}</a>)}
+    </div>
+
+    <div class="site-footer__col site-footer__col--contact">
+      <div class="site-footer__col-title">Contacto</div>
       <a href={telHref()}>{site.contact.phone}</a>
       <a href={waHref} rel="noopener">WhatsApp</a>
       <a href={mailtoHref()}>{site.contact.email}</a>
-      <span>{site.contact.city}</span>
-    </address>
+      <span class="site-footer__city">{site.contact.city}</span>
+    </div>
   </div>
 
-  <div class="container site-footer__bar">
-    <p>© {year} {site.name}</p>
+  <div class="container site-footer__bottom">
+    <span class="site-footer__copy">
+      © {year}
+      {site.name}
+    </span>
     <ul role="list" class="site-footer__social">
       {
         social.map((s) => (
@@ -54,82 +71,130 @@ const social = [
         ))
       }
     </ul>
+    <button class="site-footer__back-top" id="backToTop" type="button">↑ Volver arriba</button>
   </div>
 </footer>
 
+<script>
+  document.getElementById('backToTop')?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
+
 <style>
   .site-footer {
-    border-top: 3px solid var(--c-line); /* la "ligne" en bord supérieur */
+    background: var(--c-dark);
+    color: var(--c-paper);
+    border-top: 3px solid var(--c-line);
     margin-top: var(--space-2xl);
   }
-  .site-footer__inner {
+  .site-footer__top {
     display: grid;
-    grid-template-columns: 1.4fr 1fr 1fr;
+    grid-template-columns: 1.5fr 1fr 1fr 1.1fr;
     gap: var(--space-xl);
-    padding-block: var(--space-xl) var(--space-lg);
+    padding-block: var(--space-2xl) var(--space-lg);
+    border-bottom: 1px solid var(--c-hairline-on-dark);
   }
-  .site-footer__tagline {
+  .site-footer__brand-name {
+    font-size: var(--fs-2xl);
+    line-height: 0.9;
+  }
+  .site-footer__brand-name .accent {
+    color: var(--c-line);
+  }
+  .site-footer__brand-desc {
     margin-top: var(--space-sm);
-    max-width: 24ch;
-    color: var(--c-muted);
+    max-width: 26ch;
+    color: rgba(255, 255, 255, 0.5);
     font-size: var(--fs-sm);
-  }
-  .site-footer__nav ul,
-  .site-footer__nap {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2xs);
-    font-style: normal;
-  }
-  .site-footer__nav a,
-  .site-footer__nap a {
-    color: var(--c-ink);
-    text-decoration: none;
-    font-size: var(--fs-sm);
-  }
-  .site-footer__nav a:hover,
-  .site-footer__nap a:hover {
-    color: var(--c-orange-ink);
-  }
-  .site-footer__nap {
-    font-family: var(--font-mono);
-    gap: var(--space-3xs);
-  }
-  .site-footer__nap .eyebrow {
-    margin-bottom: var(--space-2xs);
   }
 
-  .site-footer__bar {
+  .site-footer__col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  .site-footer__col-title {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--c-line);
+    font-weight: var(--fw-bold);
+    margin-bottom: var(--space-2xs);
+  }
+  .site-footer__col a,
+  .site-footer__city {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-size: var(--fs-sm);
+    font-family: var(--font-mono);
+    transition: color 0.15s var(--ease-out);
+  }
+  .site-footer__col a:hover {
+    color: var(--c-line);
+  }
+  .site-footer__col--contact {
+    gap: var(--space-2xs);
+  }
+
+  .site-footer__bottom {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-md);
+    flex-wrap: wrap;
+    gap: var(--space-sm);
     padding-block: var(--space-md);
-    border-top: var(--border-thin);
+  }
+  .site-footer__copy {
+    font-family: var(--font-mono);
     font-size: var(--fs-label);
-    color: var(--c-muted);
+    color: rgba(255, 255, 255, 0.4);
   }
   .site-footer__social {
     display: flex;
     gap: var(--space-md);
   }
   .site-footer__social a {
-    color: var(--c-muted);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: rgba(255, 255, 255, 0.4);
     text-decoration: none;
   }
   .site-footer__social a:hover {
-    color: var(--c-orange-ink);
+    color: var(--c-line);
+  }
+  .site-footer__back-top {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: rgba(255, 255, 255, 0.5);
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  .site-footer__back-top:hover {
+    color: var(--c-line);
   }
 
-  @media (max-width: 48rem) {
-    .site-footer__inner {
-      grid-template-columns: 1fr;
-      gap: var(--space-lg);
+  @media (max-width: 60rem) {
+    .site-footer__top {
+      grid-template-columns: 1fr 1fr;
     }
-    .site-footer__bar {
+    .site-footer__brand {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 40rem) {
+    .site-footer__top {
+      grid-template-columns: 1fr;
+    }
+    .site-footer__bottom {
       flex-direction: column;
       align-items: flex-start;
-      gap: var(--space-2xs);
     }
   }
 </style>

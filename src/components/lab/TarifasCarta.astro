@@ -1,0 +1,244 @@
+---
+/**
+ * Proposition D — « Carta » : liste typographique façon carte de prix / menu.
+ * Aucune carte : nom relié au prix par un filet en pointillés (dot leader),
+ * features listées en ligne compacte façon « ingrédients ». Le plus épuré et
+ * le plus rapide à lire d'un coup d'œil — priorité absolue à la clarté du prix.
+ */
+import { formatCLP } from '../../lib/format';
+import Button from '../Button.astro';
+import { plans } from '../../data/plans';
+---
+
+<div class="carta" data-price-toggle data-mode="once">
+  <div class="carta__toggle" role="group" aria-label="Modo de pago">
+    <button type="button" class="carta__opt is-active" data-mode-btn="once" aria-pressed="true">
+      Compra única
+    </button>
+    <button type="button" class="carta__opt" data-mode-btn="month" aria-pressed="false">
+      Arriendo / mes
+    </button>
+  </div>
+
+  <ol role="list" class="carta__list">
+    {
+      plans.map((plan) => (
+        <li class:list={['carta__row', plan.highlighted && 'carta__row--featured']}>
+          <div class="carta__lead">
+            {plan.highlighted && <span class="carta__tag">Más elegido</span>}
+            <h3 class="carta__name">{plan.name}</h3>
+            <span class="carta__leader" aria-hidden="true" />
+            {plan.custom ? (
+              <span class="carta__custom">A conversar</span>
+            ) : (
+              <span class="carta__price">
+                <span data-price="once" class="carta__amount">
+                  {formatCLP(plan.priceOnce!)}
+                  <small>pago único</small>
+                </span>
+                <span data-price="month" class="carta__amount">
+                  {formatCLP(plan.priceMonth!)}
+                  <small>/ mes</small>
+                </span>
+              </span>
+            )}
+          </div>
+
+          <p class="carta__tagline">{plan.tagline}</p>
+
+          <p class="carta__features">
+            <span class="carta__features-label">Incluye — </span>
+            {plan.features.join(' · ')}
+          </p>
+
+          <div class="carta__foot">
+            {plan.note && <p class="carta__note">{plan.note}</p>}
+            <Button
+              href="/contacto"
+              variant={plan.highlighted ? 'primary' : 'ghost'}
+              class="carta__cta"
+            >
+              {plan.custom ? 'Conversemos' : 'Empezar'}
+            </Button>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<script>
+  function initPriceToggle() {
+    document.querySelectorAll<HTMLElement>('[data-price-toggle]').forEach((root) => {
+      const buttons = root.querySelectorAll<HTMLButtonElement>('[data-mode-btn]');
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const mode = button.dataset.modeBtn ?? 'once';
+          root.setAttribute('data-mode', mode);
+          buttons.forEach((other) => {
+            const active = other === button;
+            other.classList.toggle('is-active', active);
+            other.setAttribute('aria-pressed', String(active));
+          });
+        });
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initPriceToggle);
+</script>
+
+<style is:global>
+  .carta[data-mode='once'] [data-price='month'],
+  .carta[data-mode='month'] [data-price='once'] {
+    display: none;
+  }
+</style>
+
+<style>
+  .carta__toggle {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    margin-bottom: var(--space-xl);
+    background: var(--c-paper-2);
+    border-radius: var(--radius-pill);
+  }
+  .carta__opt {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--c-muted);
+    transition:
+      background 0.2s var(--ease-out),
+      color 0.2s var(--ease-out);
+  }
+  .carta__opt.is-active {
+    background: var(--c-ink);
+    color: var(--c-paper);
+  }
+
+  .carta__list {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .carta__row {
+    padding-block: var(--space-lg);
+    border-top: var(--border-thin);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+  .carta__row:last-child {
+    border-bottom: var(--border-thin);
+  }
+
+  .carta__lead {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+  }
+  .carta__tag {
+    flex: none;
+    background: var(--c-line);
+    color: var(--c-on-line);
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-pill);
+    transform: translateY(-0.15rem);
+  }
+  .carta__name {
+    flex: none;
+    font-size: var(--fs-2xl);
+  }
+  .carta__leader {
+    flex: 1;
+    border-bottom: 2px dotted var(--c-hairline);
+    margin-bottom: 0.5em;
+    min-width: 2rem;
+  }
+  .carta__row--featured .carta__leader {
+    border-bottom-color: var(--c-line);
+  }
+  .carta__price {
+    flex: none;
+  }
+  .carta__amount {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-2xl);
+  }
+  .carta__amount small {
+    font-family: var(--font-mono);
+    font-weight: var(--fw-regular);
+    font-size: var(--fs-sm);
+    color: var(--c-muted);
+  }
+  .carta__custom {
+    flex: none;
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-2xl);
+    color: var(--c-orange-ink);
+  }
+
+  .carta__tagline {
+    color: var(--c-muted);
+    font-size: var(--fs-base);
+  }
+  .carta__features {
+    font-size: var(--fs-sm);
+    color: var(--c-ink-soft);
+    max-width: 70ch;
+  }
+  .carta__features-label {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+
+  .carta__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-top: var(--space-2xs);
+  }
+  .carta__note {
+    font-size: var(--fs-label);
+    color: var(--c-muted);
+  }
+  .carta__cta {
+    flex: none;
+  }
+
+  @media (max-width: 40rem) {
+    .carta__lead {
+      flex-wrap: wrap;
+    }
+    .carta__leader {
+      display: none;
+    }
+    .carta__foot {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .carta__cta {
+      width: 100%;
+    }
+  }
+</style>
